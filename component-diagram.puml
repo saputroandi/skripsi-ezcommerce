@@ -1,0 +1,33 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam component {
+  BackgroundColor White
+  BorderColor #CBD5E1
+}
+
+package "EzCommerce" {
+  [SSR Web UI (EJS)] as UI
+  [Express App] as App
+
+  [Routes] as Routes
+  [Controllers] as Controllers
+  [Middleware] as Middleware
+  [Models (Sequelize)] as Models
+  [DB (PostgreSQL)] as DB
+  [Uploads Storage] as Uploads
+  [Swagger UI] as Swagger
+
+  UI --> App : HTTP (SSR)
+  Swagger --> App : HTTP (OpenAPI)
+
+  App --> Routes
+  Routes --> Middleware
+  Routes --> Controllers
+  Controllers --> Models
+  Models --> DB
+
+  Controllers --> Uploads : read/write proofs, thumbnails
+}
+
+@enduml
+

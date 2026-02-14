@@ -1,0 +1,117 @@
+<div class="flex flex-col gap-6">
+  <div>
+    <div class="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm">
+      <% if (game.thumbnailUrl) { %>
+        <img src="<%= game.thumbnailUrl %>" alt="<%= game.name %>" class="w-full h-56 md:h-64 object-cover" />
+      <% } else { %>
+        <div class="w-full h-56 md:h-64 bg-gray-100"></div>
+      <% } %>
+      <div class="p-5">
+        <p class="text-xs font-semibold text-indigo-700">Detail Produk</p>
+        <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">Beli Voucher <%= game.name %></h1>
+        <p class="text-sm text-gray-600 mt-1">Masukkan UID dan pilih paket, lalu checkout.</p>
+
+        <% if (game.Genres && game.Genres.length) { %>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <% game.Genres.forEach(ge => { %>
+              <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-700"><%= ge.name %></span>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <form id="orderForm" class="space-y-4" data-game-id="<%= game.id %>">
+        <div>
+          <label class="block mb-1 text-sm font-semibold text-gray-800">UID Game</label>
+          <input name="uid" class="w-full bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400" placeholder="Contoh: 123456789" required />
+          <p class="mt-1 text-xs text-gray-500">Pastikan UID sesuai akun game kamu.</p>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-sm font-semibold text-gray-800">Pilih Paket</label>
+          <select name="voucherPackageId" class="w-full bg-white text-gray-900 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400">
+            <% game.VoucherPackages.forEach(v => { %>
+              <option value="<%= v.id %>"><%= v.name %> - Rp <%= v.price %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label class="block mb-1 text-sm font-semibold text-gray-800">Nomor WhatsApp</label>
+          <input name="whatsapp" inputmode="tel" class="w-full bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400" placeholder="Contoh: 628123456789" required />
+          <p class="mt-1 text-xs text-gray-500">Gunakan format internasional (awali 62), contoh: 62812xxxx.</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+          <button id="checkoutBtn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-semibold">Checkout</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('orderForm');
+const checkoutBtn = document.getElementById('checkoutBtn');
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    if (window.showToast) window.showToast('Silakan login terlebih dulu sebelum checkout.', 'error');
+    return;
+  }
+
+  checkoutBtn.disabled = true;
+  checkoutBtn.classList.add('opacity-60','cursor-not-allowed');
+
+  const fd = new FormData(form);
+  const body = {
+    uid: fd.get('uid'),
+    whatsapp: String(fd.get('whatsapp') || '').trim(),
+    voucherPackageId: fd.get('voucherPackageId')
+  };
+
+  try {
+    const res = await fetch('/api/orders', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization': 'Bearer '+token },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (res.ok && data && data.id) {
+      const trx = data.transactionCode ? ` (${data.transactionCode})` : '';
+      window.showToast?.(`Transaksi berhasil dibuat${trx}.`, 'success');
+
+      // Redirect to payment instructions after checkout
+      setTimeout(() => {
+        window.location.href = `/payment/bca?orderId=${encodeURIComponent(data.id)}`;
+      }, 300);
+
+      // Clear inputs after successful checkout
+      form.reset();
+
+      // Keep default package selected (first option) after reset for consistent UX
+      const packageSelect = form.querySelector('select[name="voucherPackageId"]');
+      if (packageSelect && packageSelect.options.length) packageSelect.selectedIndex = 0;
+
+      // Put cursor back for quick next order
+      const uidInput = form.querySelector('input[name="uid"]');
+      uidInput?.focus();
+    } else {
+      window.showToast?.(data?.message || 'Terjadi error saat membuat order.', 'error');
+    }
+  } catch (err) {
+    window.showToast?.('Terjadi error saat membuat order.', 'error');
+  } finally {
+    checkoutBtn.disabled = false;
+    checkoutBtn.classList.remove('opacity-60','cursor-not-allowed');
+  }
+});
+</script>

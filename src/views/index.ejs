@@ -1,0 +1,113 @@
+<section class="mb-10">
+  <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div id="heroSlides" class="flex transition-transform duration-500 ease-out">
+      <!-- Static banners (not linked to any product) -->
+      <div class="min-w-full relative">
+        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1800&q=80" alt="Promo Banner 1" class="w-full h-52 md:h-72 object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
+      </div>
+      <div class="min-w-full relative">
+        <img src="https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1800&q=80" alt="Promo Banner 2" class="w-full h-52 md:h-72 object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
+      </div>
+      <div class="min-w-full relative">
+        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1800&q=80" alt="Promo Banner 3" class="w-full h-52 md:h-72 object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
+      </div>
+    </div>
+
+    <div class="absolute inset-x-0 bottom-0 px-4 pb-4">
+      <div class="flex items-center justify-center gap-2">
+        <button type="button" class="dot h-2.5 w-2.5 rounded-full bg-indigo-600 transition" data-i="0" aria-label="Slide 1"></button>
+        <button type="button" class="dot h-2.5 w-2.5 rounded-full bg-gray-300 hover:bg-gray-400 transition" data-i="1" aria-label="Slide 2"></button>
+        <button type="button" class="dot h-2.5 w-2.5 rounded-full bg-gray-300 hover:bg-gray-400 transition" data-i="2" aria-label="Slide 3"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mb-10" id="games">
+  <div class="flex items-end justify-between mb-4">
+    <div>
+      <h2 class="text-2xl font-semibold text-gray-900">Games</h2>
+      <p class="text-sm text-gray-600">Pilih game, lalu lanjut ke halaman pembelian paket.</p>
+    </div>
+    <a href="/games" class="text-sm text-indigo-700 hover:text-indigo-800">Lihat semua</a>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <% games.forEach(g => { %>
+      <a href="/games/<%= g.id %>/buy" class="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-indigo-300 hover:shadow-md transition">
+        <div class="relative">
+          <% if (g.thumbnailUrl) { %>
+            <img src="<%= g.thumbnailUrl %>" alt="<%= g.name %>" class="w-full h-28 md:h-32 object-cover group-hover:scale-[1.02] transition duration-300" />
+          <% } else { %>
+            <div class="w-full h-28 md:h-32 bg-gray-100"></div>
+          <% } %>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-black/0"></div>
+          <div class="absolute bottom-2 left-2">
+            <span class="inline-flex items-center rounded-full border border-white/50 bg-white/80 px-2 py-0.5 text-[11px] text-gray-700">
+              <%
+                const genreLabel = (g.Genres && g.Genres.length)
+                  ? g.Genres.map(x => x.name).slice(0, 2).join(', ')
+                  : 'Top-up';
+              %>
+              <%= genreLabel %>
+            </span>
+          </div>
+        </div>
+
+        <div class="p-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="font-semibold text-gray-900 leading-tight"><%= g.name %></p>
+              <p class="text-xs text-gray-500 mt-0.5">Proses instan • Invoice otomatis</p>
+            </div>
+            <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-700 group-hover:bg-indigo-50 group-hover:text-indigo-700 group-hover:border-indigo-200 transition" aria-hidden="true">→</span>
+          </div>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+</section>
+
+<script>
+  (function(){
+    const slides = document.getElementById('heroSlides');
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    if (!slides || dots.length === 0) return;
+
+    let i = 0;
+    let timer = null;
+
+    function render(){
+      slides.style.transform = `translateX(-${i*100}%)`;
+      dots.forEach((d, idx) => {
+        d.classList.toggle('bg-indigo-600', idx === i);
+        d.classList.toggle('bg-gray-300', idx !== i);
+      });
+    }
+
+    function go(n){
+      i = (n + dots.length) % dots.length;
+      render();
+    }
+
+    function start(){
+      stop();
+      timer = setInterval(() => go(i+1), 4500);
+    }
+
+    function stop(){
+      if (timer) clearInterval(timer);
+      timer = null;
+    }
+
+    dots.forEach(d => d.addEventListener('click', () => { go(Number(d.dataset.i)); start(); }));
+    slides.addEventListener('mouseenter', stop);
+    slides.addEventListener('mouseleave', start);
+
+    start();
+    render();
+  })();
+</script>

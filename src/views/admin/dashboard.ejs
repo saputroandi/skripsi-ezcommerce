@@ -1,0 +1,232 @@
+<section class="mb-6">
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Dashboard Admin</h1>
+      <p class="text-sm text-gray-600">Daftar seluruh transaksi/order.</p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
+      <form method="GET" action="/admin/dashboard" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+        <input
+          type="text"
+          name="q"
+          value="<%= typeof q !== 'undefined' ? q : '' %>"
+          placeholder="Cari nomor transaksi..."
+          class="w-full sm:w-80 md:w-96 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <div class="flex items-center gap-2">
+          <button class="w-full sm:w-auto rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-800">Search</button>
+          <% if (typeof q !== 'undefined' && q) { %>
+            <a href="/admin/dashboard" class="text-sm text-indigo-700 hover:underline">Reset</a>
+          <% } %>
+        </div>
+      </form>
+
+      <div class="text-xs text-gray-500">Total: <span class="font-semibold text-gray-900"><%= orders.length %></span> order</div>
+    </div>
+  </div>
+</section>
+
+<% if (typeof schemaWarning !== 'undefined' && schemaWarning) { %>
+  <div class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    Skema database belum update: kolom <b>orders.whatsapp</b> belum ada. Jalankan migration terbaru agar field WhatsApp ikut tersimpan.
+  </div>
+<% } %>
+
+<% if (typeof paymentProofWarning !== 'undefined' && paymentProofWarning) { %>
+  <div class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    Skema database belum update: kolom <b>orders.paymentProof</b> belum ada. Jalankan migration terbaru agar fitur upload bukti pembayaran aktif.
+  </div>
+<% } %>
+
+<section>
+  <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[1180px] text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
+          <tr>
+            <th class="text-left px-4 py-3 font-semibold">No. Transaksi</th>
+            <th class="text-left px-4 py-3 font-semibold">Tanggal</th>
+            <th class="text-left px-4 py-3 font-semibold">User</th>
+            <th class="text-left px-4 py-3 font-semibold">Game</th>
+            <th class="text-left px-4 py-3 font-semibold">Paket</th>
+            <th class="text-left px-4 py-3 font-semibold">UID</th>
+            <th class="text-left px-4 py-3 font-semibold">WhatsApp</th>
+            <th class="text-left px-4 py-3 font-semibold">Total</th>
+            <th class="text-left px-4 py-3 font-semibold">Status</th>
+            <th class="text-left px-4 py-3 font-semibold">Bukti</th>
+            <th class="text-left px-4 py-3 font-semibold">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% if (!orders.length) { %>
+            <tr>
+              <td colspan="11" class="px-4 py-10 text-center text-gray-500">Belum ada order.</td>
+            </tr>
+          <% } %>
+
+          <% orders.forEach(o => { %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 font-semibold text-gray-900">
+                <%= o.transactionCode ? o.transactionCode : ('#' + o.id) %>
+              </td>
+              <td class="px-4 py-3 text-gray-700"><%= (o.createdAt ? new Date(o.createdAt).toLocaleString() : '-') %></td>
+              <td class="px-4 py-3 text-gray-700"><%= o.User?.email || '-' %></td>
+              <td class="px-4 py-3 text-gray-700"><%= o.VoucherPackage?.Game?.name || '-' %></td>
+              <td class="px-4 py-3 text-gray-700"><%= o.VoucherPackage?.name || '-' %></td>
+              <td class="px-4 py-3 text-gray-700"><%= o.uid %></td>
+              <td class="px-4 py-3 text-gray-700"><%= o.whatsapp || '-' %></td>
+              <td class="px-4 py-3 font-semibold text-gray-900">Rp <%= o.finalPrice %></td>
+              <td class="px-4 py-3">
+                <% const status = o.status || 'pending'; %>
+                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border
+                  <%= status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (status === 'failed' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200') %>
+                ">
+                  <%= status %>
+                </span>
+              </td>
+              <td class="px-4 py-3 text-gray-700">
+                <% if (o.paymentProof) { %>
+                  <button type="button" class="viewProofBtn text-indigo-700 hover:underline" data-url="<%= o.paymentProof %>">Lihat</button>
+                <% } else { %>
+                  <span class="text-gray-400">-</span>
+                <% } %>
+              </td>
+              <td class="px-4 py-3">
+                <% if ((o.status || 'pending') === 'pending') { %>
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <button type="button" class="adminSetStatus rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 text-xs font-semibold" data-order-id="<%= o.id %>" data-status="paid">Set Paid</button>
+                    <button type="button" class="adminSetStatus rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 text-xs font-semibold" data-order-id="<%= o.id %>" data-status="failed">Set Failed</button>
+                  </div>
+                <% } else { %>
+                  <span class="text-gray-400 text-xs">-</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="mt-3 text-xs text-gray-500">
+    Catatan: halaman ini hanya dapat diakses oleh admin. Token bisa dikirim via header Authorization atau cookie <code class="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200">token</code>.
+  </p>
+</section>
+
+<!-- Proof preview modal -->
+<div id="proofPreviewModal" class="fixed inset-0 z-[9998] hidden">
+  <div id="proofPreviewBackdrop" class="absolute inset-0 bg-black/40"></div>
+  <div class="absolute inset-x-0 top-10 sm:top-16 mx-auto w-[94%] max-w-3xl rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-gray-900">Bukti Pembayaran</p>
+        <p class="text-xs text-gray-500 truncate">Preview file yang sudah diunggah.</p>
+      </div>
+      <button type="button" id="proofPreviewClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
+    </div>
+    <div class="p-4">
+      <img id="proofPreviewImage" class="hidden w-full max-h-[70vh] object-contain rounded-xl border border-gray-200" alt="Bukti pembayaran" />
+      <iframe id="proofPreviewFrame" class="hidden w-full h-[70vh] rounded-xl border border-gray-200" title="Bukti pembayaran"></iframe>
+      <div class="mt-3 flex items-center justify-end">
+        <a id="proofPreviewDownload" href="#" class="text-sm font-semibold text-indigo-700 hover:underline" target="_blank" rel="noreferrer">Download</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const previewModal = document.getElementById('proofPreviewModal');
+  const previewBackdrop = document.getElementById('proofPreviewBackdrop');
+  const previewClose = document.getElementById('proofPreviewClose');
+  const previewImg = document.getElementById('proofPreviewImage');
+  const previewFrame = document.getElementById('proofPreviewFrame');
+  const previewDownload = document.getElementById('proofPreviewDownload');
+
+  function isPdfUrl(url){
+    return /\.pdf($|[?#])/i.test(String(url || ''));
+  }
+  function isImageUrl(url){
+    return /\.(png|jpe?g|webp|gif)($|[?#])/i.test(String(url || ''));
+  }
+
+  function openPreview(url){
+    if (!previewModal || !previewImg || !previewFrame || !previewDownload) return;
+    previewDownload.href = url || '#';
+    previewImg.classList.add('hidden');
+    previewFrame.classList.add('hidden');
+
+    if (isImageUrl(url)) {
+      previewImg.src = url;
+      previewImg.classList.remove('hidden');
+    } else {
+      previewFrame.src = url;
+      previewFrame.classList.remove('hidden');
+    }
+
+    previewModal.classList.remove('hidden');
+  }
+
+  function closePreview(){
+    if (!previewModal || !previewImg || !previewFrame) return;
+    previewModal.classList.add('hidden');
+    previewImg.removeAttribute('src');
+    previewFrame.removeAttribute('src');
+  }
+
+  document.querySelectorAll('.viewProofBtn').forEach((btn)=>{
+    btn.addEventListener('click', ()=>{
+      openPreview(btn.getAttribute('data-url'));
+    });
+  });
+
+  previewBackdrop?.addEventListener('click', closePreview);
+  previewClose?.addEventListener('click', closePreview);
+  window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && previewModal && !previewModal.classList.contains('hidden')) closePreview(); });
+
+  // Admin action requires token because update status hits /api/orders/:id/status (admin-only)
+  const token = localStorage.getItem('token');
+
+  document.querySelectorAll('.adminSetStatus').forEach((btn)=>{
+    btn.addEventListener('click', async ()=>{
+      if (!token) {
+        window.showToast?.('Token admin tidak ditemukan. Silakan login ulang.', 'error');
+        return;
+      }
+      const orderId = btn.getAttribute('data-order-id');
+      const status = btn.getAttribute('data-status');
+      if (!orderId || !status) return;
+
+      const ok = confirm(`Ubah status order #${orderId} menjadi ${status}?`);
+      if (!ok) return;
+
+      btn.disabled = true;
+      btn.classList.add('opacity-60','cursor-not-allowed');
+
+      try {
+        const res = await fetch(`/api/orders/${orderId}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.showToast?.('Status berhasil diupdate.', 'success');
+          setTimeout(()=>location.reload(), 600);
+        } else {
+          window.showToast?.(data.message || 'Gagal update status', 'error');
+        }
+      } catch (e) {
+        window.showToast?.('Gagal update status', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-60','cursor-not-allowed');
+      }
+    });
+  });
+})();
+</script>

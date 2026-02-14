@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  api:
+    image: ezcommerce_api:prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ezcommerce_api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      # Override .env for container networking ("localhost" inside container != host)
+      DATABASE_URL: postgres://postgres:postgres@db:5432/ezcommerce
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    # Production: do NOT mount source code
+    # Persist uploads so payment proofs/thumbnails survive container restarts
+    volumes:
+      - uploads_data:/usr/src/app/uploads
+
+  db:
+    image: postgres:15-alpine
+    container_name: ezcommerce_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ezcommerce
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+  uploads_data:

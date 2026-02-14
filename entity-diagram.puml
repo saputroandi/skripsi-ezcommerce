@@ -1,0 +1,91 @@
+@startuml
+hide circle
+left to right direction
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor White
+  BorderColor #CBD5E1
+}
+skinparam relationship {
+  BackgroundColor White
+  BorderColor #CBD5E1
+}
+
+' Chen notation: relationship diamonds + explicit cardinality labels
+
+entity "Role" as Role {
+  * id : int
+  --
+  name : string
+}
+
+entity "User" as User {
+  * id : int
+  --
+  name : string
+  email : string
+  password : string
+  roleId : int
+}
+
+entity "Game" as Game {
+  * id : int
+  --
+  name : string
+  slug : string
+  thumbnailUrl : string
+  description : text
+  isActive : bool
+}
+
+entity "VoucherPackage" as VoucherPackage {
+  * id : int
+  --
+  gameId : int
+  name : string
+  denomination : int
+  price : decimal(10,2)
+}
+
+entity "Order" as Order {
+  * id : int
+  --
+  userId : int
+  voucherPackageId : int
+  uid : string
+  whatsapp : string
+  transactionCode : string
+  paymentProof : string
+  paymentProofUploadedAt : datetime
+  finalPrice : decimal(10,2)
+  status : enum(pending, paid, failed)
+}
+
+entity "Genre" as Genre {
+  * id : int
+  --
+  name : string
+}
+
+relationship "has" as R1
+relationship "places" as R2
+relationship "has" as R3
+relationship "ordered_for" as R4
+relationship "classified_as" as R5
+
+Role -- R1 : 1
+R1 -- User : N
+
+User -- R2 : 1
+R2 -- Order : N
+
+Game -- R3 : 1
+R3 -- VoucherPackage : N
+
+VoucherPackage -- R4 : 1
+R4 -- Order : N
+
+Game -- R5 : M
+R5 -- Genre : N
+
+@enduml

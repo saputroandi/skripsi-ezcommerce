@@ -1,0 +1,46 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Runtime / uploads
+uploads/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Build artifacts
+/dist/
+/build/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Sequelize
+src/models/*.sqlite
+
+# Docker
+**/.dockerignore
+
+# k6 outputs
+*.json
+*.html
+
+# Misc
+*.tmp
+*.swp

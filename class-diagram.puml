@@ -1,0 +1,66 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide circle
+
+class Role {
+  +id: int
+  +name: string
+}
+
+class User {
+  +id: int
+  +name: string
+  +email: string
+  +password: string
+  +roleId: int
+}
+
+class Game {
+  +id: int
+  +name: string
+  +slug: string
+  +thumbnailUrl: string
+  +description: text
+  +isActive: bool
+}
+
+class VoucherPackage {
+  +id: int
+  +gameId: int
+  +name: string
+  +denomination: int
+  +price: decimal(10,2)
+}
+
+class Order {
+  +id: int
+  +userId: int
+  +voucherPackageId: int
+  +uid: string
+  +whatsapp: string
+  +transactionCode: string
+  +paymentProof: string
+  +paymentProofUploadedAt: datetime
+  +finalPrice: decimal(10,2)
+  +status: enum(pending, paid, failed)
+}
+
+class Genre {
+  +id: int
+  +name: string
+}
+
+class GameGenre {
+  +gameId: int
+  +genreId: int
+}
+
+Role "1" -- "0..*" User : roleId
+User "1" -- "0..*" Order : userId
+Game "1" -- "0..*" VoucherPackage : gameId
+VoucherPackage "1" -- "0..*" Order : voucherPackageId
+Game "1" -- "0..*" GameGenre : gameId
+Genre "1" -- "0..*" GameGenre : genreId
+
+@enduml
+

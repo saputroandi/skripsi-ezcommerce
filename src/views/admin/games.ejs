@@ -1,0 +1,466 @@
+<section class="mb-6">
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Game Management</h1>
+      <p class="text-sm text-gray-600">Tambah, edit, hide/unhide, atau hapus game.</p>
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
+      <form method="GET" action="/admin/games" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+        <input
+          type="text"
+          name="q"
+          value="<%= typeof q !== 'undefined' ? q : '' %>"
+          placeholder="Cari nama/slug game..."
+          class="w-full sm:w-80 md:w-96 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <div class="flex items-center gap-2">
+          <button class="w-full sm:w-auto rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-800">Search</button>
+          <% if (typeof q !== 'undefined' && q) { %>
+            <a href="/admin/games" class="text-sm text-indigo-700 hover:underline">Reset</a>
+          <% } %>
+        </div>
+      </form>
+
+      <button type="button" id="openCreateGame" class="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold whitespace-nowrap">
+        + Tambah Game
+      </button>
+    </div>
+  </div>
+</section>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div id="serverError" class="hidden" data-msg="<%= String(error) %>"></div>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('serverError');
+      const msg = el?.getAttribute('data-msg') || '';
+      if (msg && window.showToast) window.showToast(msg, 'error');
+    });
+  </script>
+<% } %>
+
+<section class="grid grid-cols-1 gap-6">
+  <!-- Table -->
+  <div>
+    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[1180px] text-sm">
+          <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
+            <tr>
+              <th class="text-left px-4 py-3 font-semibold">Nama</th>
+              <th class="text-left px-4 py-3 font-semibold">Slug</th>
+              <th class="text-left px-4 py-3 font-semibold">Genres</th>
+              <th class="text-left px-4 py-3 font-semibold">Voucher Packages</th>
+              <th class="text-left px-4 py-3 font-semibold">Aktif</th>
+              <th class="text-left px-4 py-3 font-semibold">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% if (!games || !games.length) { %>
+              <tr>
+                <td colspan="6" class="px-4 py-10 text-center text-gray-500">Belum ada game.</td>
+              </tr>
+            <% } %>
+
+            <% (games || []).forEach(g => { %>
+              <% const hasPackages = !!(g.VoucherPackages && g.VoucherPackages.length); %>
+              <tr class="hover:bg-gray-50 align-top <%= hasPackages ? '' : 'bg-amber-50/60' %>">
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <% if (g.thumbnailUrl) { %>
+                      <img src="<%= g.thumbnailUrl %>" class="h-10 w-14 object-cover rounded-lg border border-gray-200" alt="thumb" />
+                    <% } else { %>
+                      <div class="h-10 w-14 rounded-lg border border-gray-200 bg-gray-100"></div>
+                    <% } %>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <p class="font-semibold text-gray-900"><%= g.name %></p>
+                        <% if (!hasPackages) { %>
+                          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold border border-amber-200 bg-amber-50 text-amber-800">No package</span>
+                        <% } %>
+                      </div>
+                      <p class="text-xs text-gray-500 truncate">#<%= g.id %></p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-gray-700 font-mono text-xs"><%= g.slug %></td>
+                <td class="px-4 py-3 text-gray-700">
+                  <%= (g.Genres && g.Genres.length) ? g.Genres.map(x => x.name).join(', ') : '-' %>
+                </td>
+
+                <td class="px-4 py-3 text-gray-700">
+                  <div class="space-y-2 min-w-[320px]">
+                    <div class="space-y-1">
+                      <% if (g.VoucherPackages && g.VoucherPackages.length) { %>
+                        <% g.VoucherPackages.forEach(v => { %>
+                          <div class="flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                            <div class="min-w-0">
+                              <p class="text-sm font-semibold text-gray-900 truncate"><%= v.name %></p>
+                              <p class="text-xs text-gray-500">Denom: <%= v.denomination %> • Rp <%= v.price %></p>
+                            </div>
+                            <form method="POST" action="/admin/vouchers/<%= v.id %>/delete" onsubmit="return confirm('Hapus voucher package ini?')">
+                              <button class="rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-1.5 text-xs font-semibold">Delete</button>
+                            </form>
+                          </div>
+                        <% }) %>
+                      <% } else { %>
+                        <p class="text-xs text-gray-500">Belum ada voucher package.</p>
+                      <% } %>
+                    </div>
+
+                    <button type="button" class="openAddVoucher rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-800"
+                      data-game-id="<%= g.id %>" data-game-name="<%= g.name %>">
+                      + Tambah Paket
+                    </button>
+                  </div>
+                </td>
+
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border <%= g.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-700 border-gray-200' %>">
+                    <%= g.isActive ? 'active' : 'hidden' %>
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex flex-col gap-2 min-w-[220px]">
+                    <button type="button" class="editBtn rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-800"
+                      data-id="<%= g.id %>"
+                      data-name="<%= g.name %>"
+                      data-slug="<%= g.slug %>"
+                      data-thumb="<%= g.thumbnailUrl || '' %>"
+                      data-desc="<%= (g.description || '').replace(/\n/g,'\\n') %>"
+                      data-active="<%= g.isActive ? 'true' : 'false' %>"
+                      data-genre-ids="<%= (g.Genres && g.Genres.length) ? g.Genres.map(x=>x.id).join(',') : '' %>">
+                      Edit
+                    </button>
+
+                    <form method="POST" action="/admin/games/<%= g.id %>/toggle" onsubmit="return confirm('Ubah visibility game ini?')">
+                      <button class="w-full rounded-xl <%= g.isActive ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' %> text-white px-3 py-2 text-xs font-semibold">
+                        <%= g.isActive ? 'Hide' : 'Unhide' %>
+                      </button>
+                    </form>
+
+                    <form method="POST" action="/admin/games/<%= g.id %>/delete" onsubmit="return confirm('Hapus permanen game ini?')">
+                      <button class="w-full rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 text-xs font-semibold">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="mt-3 text-xs text-gray-500">Halaman ini khusus admin. Hide = tidak tampil di user, Delete = hapus permanen.</p>
+  </div>
+</section>
+
+<!-- Create modal -->
+<div id="createModal" class="fixed inset-0 z-[9998] hidden">
+  <div id="createBackdrop" class="absolute inset-0 bg-black/30"></div>
+  <div class="absolute inset-x-0 top-10 sm:top-16 mx-auto w-[94%] max-w-xl rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <div>
+        <p class="text-sm font-semibold text-gray-900">Tambah Game</p>
+        <p class="text-xs text-gray-500">Field wajib: name, slug.</p>
+      </div>
+      <button type="button" id="createClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
+    </div>
+
+    <form method="POST" action="/admin/games" class="p-4 space-y-3" enctype="multipart/form-data">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Nama</label>
+          <input name="name" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="Nama game" required />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Slug</label>
+          <input name="slug" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="contoh: mlbb" required />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Thumbnail (Upload)</label>
+        <input type="file" name="thumbnailFile" accept="image/*" class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-gray-200 file:bg-white hover:file:bg-gray-50" />
+        <p class="mt-1 text-xs text-gray-500">Opsional. JPG/PNG/WebP, maks 3MB. Jika di-upload, akan override Thumbnail URL.</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Thumbnail URL (Opsional)</label>
+        <input name="thumbnailUrl" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="https://..." />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Deskripsi</label>
+        <textarea name="description" rows="3" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="Deskripsi singkat..."></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-2">Genres</label>
+        <div class="max-h-44 overflow-auto rounded-xl border border-gray-200 bg-white p-2 space-y-2">
+          <% if (!genres || !genres.length) { %>
+            <p class="text-xs text-gray-500">Belum ada genre. Tambahkan via API <code>/api/genres</code> (admin).</p>
+          <% } %>
+          <% (genres || []).forEach(ge => { %>
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" name="genreIds" value="<%= ge.id %>" class="rounded border-gray-300" />
+              <span><%= ge.name %></span>
+            </label>
+          <% }) %>
+        </div>
+      </div>
+
+      <div>
+        <!-- Hidden input to guarantee a value is posted -->
+        <input type="hidden" name="isActive" value="false" />
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" name="isActive" value="true" class="rounded border-gray-300" checked />
+          <span>Aktif (tampil di user)</span>
+        </label>
+        <p class="mt-1 text-xs text-gray-500">Jika nonaktif, game disembunyikan dari halaman user tapi masih tersimpan.</p>
+      </div>
+
+      <button class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 font-semibold">Simpan</button>
+    </form>
+  </div>
+</div>
+
+<!-- Add voucher modal -->
+<div id="voucherModal" class="fixed inset-0 z-[9998] hidden">
+  <div id="voucherBackdrop" class="absolute inset-0 bg-black/30"></div>
+  <div class="absolute inset-x-0 top-12 sm:top-16 mx-auto w-[94%] max-w-lg rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-gray-900">Tambah Voucher Package</p>
+        <p id="voucherSub" class="text-xs text-gray-500 truncate">-</p>
+      </div>
+      <button type="button" id="voucherClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
+    </div>
+
+    <form id="voucherForm" method="POST" class="p-4 space-y-3">
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Paket</label>
+        <input name="name" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="contoh: Diamonds 86" required />
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Denomination</label>
+          <input name="denomination" inputmode="numeric" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="86" required />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Price</label>
+          <input name="price" inputmode="numeric" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="20000" required />
+        </div>
+      </div>
+      <button class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 font-semibold">Simpan Paket</button>
+    </form>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div id="editModal" class="fixed inset-0 z-[9998] hidden">
+  <div id="editBackdrop" class="absolute inset-0 bg-black/30"></div>
+  <div class="absolute inset-x-0 top-12 sm:top-16 mx-auto w-[94%] max-w-xl rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-gray-900">Edit Game</p>
+        <p id="editSub" class="text-xs text-gray-500 truncate">-</p>
+      </div>
+      <button type="button" id="editClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
+    </div>
+
+    <form id="editForm" method="POST" class="p-4 space-y-3" enctype="multipart/form-data">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Nama</label>
+          <input name="name" id="editName" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" required />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Slug</label>
+          <input name="slug" id="editSlug" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" required />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Thumbnail (Upload)</label>
+        <input type="file" name="thumbnailFile" accept="image/*" class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-gray-200 file:bg-white hover:file:bg-gray-50" />
+        <p class="mt-1 text-xs text-gray-500">Jika di-upload, akan mengganti thumbnail sebelumnya.</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Thumbnail URL (Opsional)</label>
+        <input name="thumbnailUrl" id="editThumb" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Deskripsi</label>
+        <textarea name="description" id="editDesc" rows="3" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-2">Genres</label>
+        <div class="max-h-44 overflow-auto rounded-xl border border-gray-200 bg-white p-2 space-y-2">
+          <% (genres || []).forEach(ge => { %>
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+              <input type="checkbox" class="editGenreCb rounded border-gray-300" value="<%= ge.id %>" />
+              <span><%= ge.name %></span>
+            </label>
+          <% }) %>
+        </div>
+      </div>
+
+      <div>
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" id="editActive" class="rounded border-gray-300" />
+          <span>Aktif (tampil di user)</span>
+        </label>
+        <input type="hidden" name="isActive" id="editActiveHidden" value="true" />
+      </div>
+
+      <button class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 font-semibold">Update</button>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  function lockBody(lock){
+    try {
+      document.body.style.overflow = lock ? 'hidden' : '';
+    } catch (_) {}
+  }
+
+  // Create modal
+  const createModal = document.getElementById('createModal');
+  const openCreate = document.getElementById('openCreateGame');
+  const createBackdrop = document.getElementById('createBackdrop');
+  const createClose = document.getElementById('createClose');
+
+  function openCreateModal(){
+    createModal?.classList.remove('hidden');
+    lockBody(true);
+    const first = createModal?.querySelector('input[name="name"]');
+    setTimeout(() => first?.focus(), 50);
+  }
+  function closeCreateModal(){
+    createModal?.classList.add('hidden');
+    lockBody(false);
+  }
+
+  openCreate?.addEventListener('click', openCreateModal);
+  createBackdrop?.addEventListener('click', closeCreateModal);
+  createClose?.addEventListener('click', closeCreateModal);
+
+  // Voucher modal
+  const voucherModal = document.getElementById('voucherModal');
+  const voucherBackdrop = document.getElementById('voucherBackdrop');
+  const voucherClose = document.getElementById('voucherClose');
+  const voucherForm = document.getElementById('voucherForm');
+  const voucherSub = document.getElementById('voucherSub');
+
+  function openVoucherModal(gameId, gameName){
+    voucherForm.setAttribute('action', `/admin/games/${gameId}/vouchers`);
+    voucherSub.textContent = `Game: ${gameName} (#${gameId})`;
+    voucherModal.classList.remove('hidden');
+    lockBody(true);
+    voucherForm.reset();
+    setTimeout(() => voucherForm.querySelector('input[name="name"]')?.focus(), 50);
+  }
+  function closeVoucherModal(){
+    voucherModal?.classList.add('hidden');
+    lockBody(false);
+  }
+
+  document.querySelectorAll('.openAddVoucher').forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      openVoucherModal(btn.getAttribute('data-game-id'), btn.getAttribute('data-game-name'));
+    });
+  });
+
+  voucherBackdrop?.addEventListener('click', closeVoucherModal);
+  voucherClose?.addEventListener('click', closeVoucherModal);
+
+  // Edit modal
+  const modal = document.getElementById('editModal');
+  const backdrop = document.getElementById('editBackdrop');
+  const closeBtn = document.getElementById('editClose');
+  const form = document.getElementById('editForm');
+
+  const nameEl = document.getElementById('editName');
+  const slugEl = document.getElementById('editSlug');
+  const thumbEl = document.getElementById('editThumb');
+  const descEl = document.getElementById('editDesc');
+  const subEl = document.getElementById('editSub');
+  const activeCb = document.getElementById('editActive');
+  const activeHidden = document.getElementById('editActiveHidden');
+
+  function openModal(payload){
+    if (!modal) return;
+
+    form.setAttribute('action', `/admin/games/${payload.id}`);
+    nameEl.value = payload.name || '';
+    slugEl.value = payload.slug || '';
+    thumbEl.value = payload.thumb || '';
+    descEl.value = payload.desc || '';
+    subEl.textContent = `#${payload.id}`;
+
+    const isActive = payload.active === 'true';
+    activeCb.checked = isActive;
+    activeHidden.value = isActive ? 'true' : 'false';
+
+    const ids = String(payload.genreIds || '').split(',').map(x=>x.trim()).filter(Boolean);
+    document.querySelectorAll('.editGenreCb').forEach(cb => {
+      cb.checked = ids.includes(String(cb.value));
+      cb.setAttribute('name', cb.checked ? 'genreIds' : '');
+      if (!cb.checked) cb.removeAttribute('name');
+    });
+
+    modal.classList.remove('hidden');
+    lockBody(true);
+    setTimeout(() => nameEl.focus(), 50);
+  }
+
+  function closeModal(){
+    modal?.classList.add('hidden');
+    lockBody(false);
+  }
+
+  document.querySelectorAll('.editBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openModal({
+        id: btn.getAttribute('data-id'),
+        name: btn.getAttribute('data-name'),
+        slug: btn.getAttribute('data-slug'),
+        thumb: btn.getAttribute('data-thumb'),
+        desc: btn.getAttribute('data-desc'),
+        active: btn.getAttribute('data-active'),
+        genreIds: btn.getAttribute('data-genre-ids')
+      });
+    });
+  });
+
+  // ensure checked genre checkboxes are submitted as genreIds
+  document.querySelectorAll('.editGenreCb').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) cb.setAttribute('name', 'genreIds');
+      else cb.removeAttribute('name');
+    });
+  });
+
+  activeCb?.addEventListener('change', () => {
+    activeHidden.value = activeCb.checked ? 'true' : 'false';
+  });
+
+  backdrop?.addEventListener('click', closeModal);
+  closeBtn?.addEventListener('click', closeModal);
+
+  window.addEventListener('keydown', (e)=>{
+    if (e.key === 'Escape') {
+      if (createModal && !createModal.classList.contains('hidden')) closeCreateModal();
+      if (voucherModal && !voucherModal.classList.contains('hidden')) closeVoucherModal();
+      if (modal && !modal.classList.contains('hidden')) closeModal();
+    }
+  });
+})();
+</script>
