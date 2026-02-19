@@ -1,5 +1,6 @@
 const { Order, VoucherPackage, Game } = require('../models');
 const { Sequelize } = require('sequelize');
+const { sendTelegramLog } = require('../utils/telegramLogger');
 
 /**
  * @openapi
@@ -42,6 +43,7 @@ exports.create = async (req,res,next)=>{
       transactionCode,
       finalPrice
     });
+    sendTelegramLog(`Order baru dibuat:\nKode: ${order.transactionCode}\nWhatsapp: ${order.whatsapp}`);
     res.json(order);
   } catch(e){ next(e); }
 };

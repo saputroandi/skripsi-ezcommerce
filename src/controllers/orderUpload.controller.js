@@ -1,5 +1,6 @@
 const path = require('path');
 const { Order } = require('../models');
+const { sendTelegramLog } = require('../utils/telegramLogger');
 
 exports.uploadPaymentProof = async (req, res, next) => {
   try {
@@ -27,6 +28,8 @@ exports.uploadPaymentProof = async (req, res, next) => {
     order.paymentProof = publicUrl;
     order.paymentProofUploadedAt = new Date();
     await order.save();
+
+    sendTelegramLog(`Bukti pembayaran diupload:\nKode: ${order.transactionCode}\nWhatsapp: ${order.whatsapp}`);
 
     res.json({
       message: 'Payment proof uploaded',
