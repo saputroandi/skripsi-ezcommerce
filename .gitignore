@@ -15,7 +15,7 @@ logs/
 *.log
 
 # Runtime / uploads
-uploads/
+uploads/**
 
 # Coverage
 coverage/
@@ -34,11 +34,7 @@ Thumbs.db
 # Sequelize
 src/models/*.sqlite
 
-# Docker
-**/.dockerignore
-
 # k6 outputs
-*.json
 *.html
 
 # Misc
