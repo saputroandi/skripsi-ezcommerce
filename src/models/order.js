@@ -14,7 +14,9 @@ module.exports = (sequelize, DataTypes) => {
   const Order = sequelize.define('Order', {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     userId: { type: DataTypes.INTEGER, allowNull: false },
+    addressId: { type: DataTypes.INTEGER },
     voucherPackageId: { type: DataTypes.INTEGER, allowNull: false },
+    quantity: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
     uid: { type: DataTypes.STRING, allowNull: false },
     whatsapp: { type: DataTypes.STRING },
     transactionCode: { type: DataTypes.STRING },

@@ -1,4 +1,4 @@
-const { Order, VoucherPackage, Game } = require('../models');
+const { Order, VoucherPackage, Game, UserAddress, OrderItem } = require('../models');
 const { Sequelize } = require('sequelize');
 const { sendTelegramLog } = require('../utils/telegramLogger');
 
@@ -15,7 +15,7 @@ const { sendTelegramLog } = require('../utils/telegramLogger');
 
 exports.create = async (req,res,next)=>{
   try {
-    const { gameId, voucherPackageId, uid, whatsapp } = req.body;
+    const { gameId, voucherPackageId, uid, whatsapp, quantity, addressId } = req.body;
 
     const vp = await VoucherPackage.findByPk(voucherPackageId, { include: [Game] });
     if(!vp) return res.status(400).json({ message:'Invalid package' });
@@ -25,8 +25,17 @@ exports.create = async (req,res,next)=>{
       return res.status(400).json({ message:'Invalid package/game' });
     }
 
+    const addrId = Number(addressId);
+    if (!Number.isFinite(addrId)) return res.status(400).json({ message:'Alamat tidak valid' });
+
+    const address = await UserAddress.findOne({
+      where: { id: addrId, userId: req.user.id }
+    });
+    if (!address) return res.status(400).json({ message:'Alamat tidak valid' });
+
     // Option A: store only the final snapshot amount to be paid.
-    const finalPrice = parseFloat(vp.price);
+    const qty = Math.max(1, parseInt(quantity, 10) || 1);
+    const finalPrice = parseFloat(vp.price) * qty;
 
     const now = new Date();
     const pad = (n) => String(n).padStart(2, '0');
@@ -37,11 +46,20 @@ exports.create = async (req,res,next)=>{
 
     const order = await Order.create({
       userId: req.user.id,
+      addressId: address.id,
       voucherPackageId,
       uid,
+      quantity: qty,
       whatsapp: whatsapp ? String(whatsapp).trim() : null,
       transactionCode,
       finalPrice
+    });
+    await OrderItem.create({
+      orderId: order.id,
+      voucherPackageId,
+      quantity: qty,
+      unitPrice: parseFloat(vp.price),
+      totalPrice: finalPrice
     });
     sendTelegramLog(`Order baru dibuat:\nKode: ${order.transactionCode}\nWhatsapp: ${order.whatsapp}`);
     res.json(order);
@@ -53,7 +71,9 @@ exports.list = async (req,res,next)=>{
     const orders = await Order.findAll({
       where: { userId: req.user.id },
       include: [
-        { model: VoucherPackage, include: [Game] }
+        { model: VoucherPackage, include: [Game] },
+        { model: UserAddress },
+        { model: OrderItem, include: [{ model: VoucherPackage, include: [Game] }] }
       ]
     });
     res.json(orders);
@@ -88,7 +108,9 @@ exports.invoice = async (req,res,next)=>{
   try {
     const o = await Order.findByPk(req.params.id, {
       include: [
-        { model: VoucherPackage, include: [Game] }
+        { model: VoucherPackage, include: [Game] },
+        { model: UserAddress },
+        { model: OrderItem, include: [{ model: VoucherPackage, include: [Game] }] }
       ]
     });
     if(!o) return res.status(404).json({ message:'Not found'});

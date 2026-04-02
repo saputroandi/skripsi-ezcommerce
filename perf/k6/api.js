@@ -32,12 +32,12 @@ export default function () {
   const params = { timeout: TIMEOUT };
 
   // 1) list games
-  const g = http.get(`${BASE_URL}/api/games`, params);
-  check(g, { 'GET /api/games -> 200': (r) => r.status === 200 });
+  const g = http.get(`${BASE_URL}/api/products`, params);
+  check(g, { 'GET /api/products -> 200': (r) => r.status === 200 });
 
   // 2) list vouchers
-  const v = http.get(`${BASE_URL}/api/vouchers`, params);
-  check(v, { 'GET /api/vouchers -> 200': (r) => r.status === 200 });
+  const v = http.get(`${BASE_URL}/api/variants`, params);
+  check(v, { 'GET /api/variants -> 200': (r) => r.status === 200 });
 
   // 3) flashsales (opsional, jika endpoint memang ada)
   const testFlashsales = String(__ENV.TEST_FLASHSALES || '').toLowerCase() === 'true';

@@ -24,7 +24,7 @@ exports.createForGame = async (req, res, next) => {
       price,
     });
 
-    res.redirect('/admin/games');
+    res.redirect('/admin/products');
   } catch (e) {
     next(e);
   }
@@ -37,7 +37,7 @@ exports.deleteVoucher = async (req, res, next) => {
     if (!vp) return res.status(404).send('Not found');
 
     await vp.destroy();
-    res.redirect('/admin/games');
+    res.redirect('/admin/products');
   } catch (e) {
     next(e);
   }

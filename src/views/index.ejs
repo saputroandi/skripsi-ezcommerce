@@ -1,56 +1,76 @@
 <section class="mb-10">
-  <div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+  <div class="relative overflow-hidden rounded-2xl border border-rose-100 bg-white shadow-sm">
     <div id="heroSlides" class="flex transition-transform duration-500 ease-out">
       <!-- Static banners (not linked to any product) -->
       <div class="min-w-full relative">
-        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1800&q=80" alt="Promo Banner 1" class="w-full h-52 md:h-72 object-cover" />
+        <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1800&q=80" alt="Promo Skincare 1" class="w-full h-52 md:h-72 object-cover" />
         <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
       </div>
       <div class="min-w-full relative">
-        <img src="https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1800&q=80" alt="Promo Banner 2" class="w-full h-52 md:h-72 object-cover" />
+        <img src="https://images.unsplash.com/photo-1522336572468-97b06e8ef143?auto=format&fit=crop&w=1800&q=80" alt="Promo Skincare 2" class="w-full h-52 md:h-72 object-cover" />
         <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
       </div>
       <div class="min-w-full relative">
-        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1800&q=80" alt="Promo Banner 3" class="w-full h-52 md:h-72 object-cover" />
+        <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=1800&q=80" alt="Promo Skincare 3" class="w-full h-52 md:h-72 object-cover" />
         <div class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
+      </div>
+    </div>
+
+    <div class="absolute inset-0 flex items-center">
+      <div class="px-6 md:px-10 max-w-2xl">
+        <p class="text-xs md:text-sm uppercase tracking-[0.2em] text-white/80">EzBeauty Reseller</p>
+        <h1 class="mt-2 text-3xl md:text-4xl font-bold text-white drop-shadow-sm">
+          Skincare & Beauty Essentials<br class="hidden sm:block" /> untuk Ritualitas Harian
+        </h1>
+        <p class="mt-3 text-sm md:text-base text-white/90">
+          Pilihan produk yang lembut untuk kulit, resmi, dan terpercaya. Lengkapi ritualmu dengan varian favorit.
+        </p>
+        <div class="mt-5 flex flex-wrap gap-3">
+          <a href="/products" class="inline-flex items-center justify-center rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 text-sm font-semibold shadow-sm">
+            Belanja Sekarang
+          </a>
+          <a href="/orders" class="inline-flex items-center justify-center rounded-xl border border-white/60 bg-white/15 hover:bg-white/25 text-white px-4 py-2.5 text-sm font-semibold">
+            Lacak Pesanan
+          </a>
+        </div>
       </div>
     </div>
 
     <div class="absolute inset-x-0 bottom-0 px-4 pb-4">
       <div class="flex items-center justify-center gap-2">
-        <button type="button" class="dot h-2.5 w-2.5 rounded-full bg-indigo-600 transition" data-i="0" aria-label="Slide 1"></button>
-        <button type="button" class="dot h-2.5 w-2.5 rounded-full bg-gray-300 hover:bg-gray-400 transition" data-i="1" aria-label="Slide 2"></button>
-        <button type="button" class="dot h-2.5 w-2.5 rounded-full bg-gray-300 hover:bg-gray-400 transition" data-i="2" aria-label="Slide 3"></button>
+        <button type="button" class="dot h-2.5 w-2.5 rounded-full bg-rose-600 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80" data-i="0" aria-label="Slide 1"></button>
+        <button type="button" class="dot h-2.5 w-2.5 rounded-full bg-rose-200 hover:bg-rose-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80" data-i="1" aria-label="Slide 2"></button>
+        <button type="button" class="dot h-2.5 w-2.5 rounded-full bg-rose-200 hover:bg-rose-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80" data-i="2" aria-label="Slide 3"></button>
       </div>
     </div>
   </div>
 </section>
 
-<section class="mb-10" id="games">
+<section class="mb-10" id="products">
   <div class="flex items-end justify-between mb-4">
     <div>
-      <h2 class="text-2xl font-semibold text-gray-900">Games</h2>
-      <p class="text-sm text-gray-600">Pilih game, lalu lanjut ke halaman pembelian paket.</p>
+      <h2 class="text-2xl font-semibold text-gray-900">Produk Populer</h2>
+      <p class="text-sm text-gray-600">Pilih produk skincare & kosmetik, lanjut ke halaman detail.</p>
     </div>
-    <a href="/games" class="text-sm text-indigo-700 hover:text-indigo-800">Lihat semua</a>
+    <a href="/products" class="text-sm text-rose-700 hover:text-rose-800">Lihat semua</a>
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
     <% games.forEach(g => { %>
-      <a href="/games/<%= g.id %>/buy" class="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-indigo-300 hover:shadow-md transition">
+      <a href="/products/<%= g.id %>/buy" class="group bg-white border border-rose-100 rounded-2xl overflow-hidden hover:border-rose-300 hover:shadow-md transition">
         <div class="relative">
           <% if (g.thumbnailUrl) { %>
             <img src="<%= g.thumbnailUrl %>" alt="<%= g.name %>" class="w-full h-28 md:h-32 object-cover group-hover:scale-[1.02] transition duration-300" />
           <% } else { %>
-            <div class="w-full h-28 md:h-32 bg-gray-100"></div>
+            <div class="w-full h-28 md:h-32 bg-rose-50"></div>
           <% } %>
           <div class="absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-black/0"></div>
           <div class="absolute bottom-2 left-2">
-            <span class="inline-flex items-center rounded-full border border-white/50 bg-white/80 px-2 py-0.5 text-[11px] text-gray-700">
+            <span class="inline-flex items-center rounded-full border border-white/60 bg-white/90 px-2 py-0.5 text-[11px] text-gray-700">
               <%
                 const genreLabel = (g.Genres && g.Genres.length)
                   ? g.Genres.map(x => x.name).slice(0, 2).join(', ')
-                  : 'Top-up';
+                  : 'Skincare';
               %>
               <%= genreLabel %>
             </span>
@@ -61,9 +81,9 @@
           <div class="flex items-start justify-between gap-2">
             <div>
               <p class="font-semibold text-gray-900 leading-tight"><%= g.name %></p>
-              <p class="text-xs text-gray-500 mt-0.5">Proses instan • Invoice otomatis</p>
+              <p class="text-xs text-gray-500 mt-0.5">Produk pilihan • Reseller terpercaya</p>
             </div>
-            <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-700 group-hover:bg-indigo-50 group-hover:text-indigo-700 group-hover:border-indigo-200 transition" aria-hidden="true">→</span>
+            <span class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-700 group-hover:bg-rose-100 group-hover:text-rose-800 group-hover:border-rose-200 transition" aria-hidden="true">→</span>
           </div>
         </div>
       </a>
@@ -83,8 +103,8 @@
     function render(){
       slides.style.transform = `translateX(-${i*100}%)`;
       dots.forEach((d, idx) => {
-        d.classList.toggle('bg-indigo-600', idx === i);
-        d.classList.toggle('bg-gray-300', idx !== i);
+        d.classList.toggle('bg-rose-600', idx === i);
+        d.classList.toggle('bg-rose-200', idx !== i);
       });
     }
 

@@ -66,14 +66,14 @@ Login:
 TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{"email":"admin@example.com","password":"Admin123!"}' | jq -r .token)
 ```
 
-List Games:
+List Products:
 ```
-curl http://localhost:3000/api/games
+curl http://localhost:3000/api/products
 ```
 
 Create Order:
 ```
-curl -X POST http://localhost:3000/api/orders -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d '{"gameId":1,"voucherPackageId":1,"uid":"123456"}'
+curl -X POST http://localhost:3000/api/orders -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d '{"gameId":1,"voucherPackageId":1,"quantity":2,"uid":"123456"}'
 ```
 
 Pay Order:
@@ -87,8 +87,8 @@ curl -X POST http://localhost:3000/api/payments/simulate -H "Authorization: Bear
 ```
 
 ## Admin Endpoints
-- CRUD /api/games
-- CRUD /api/vouchers
+- CRUD /api/products
+- CRUD /api/variants
 - CRUD /api/flash-sales
 - CRUD /api/articles
 - View Orders: GET /admin/orders
@@ -110,3 +110,10 @@ curl -X POST http://localhost:3000/api/payments/simulate -H "Authorization: Bear
 MIT
 
 ✅ Project Generated (MVC + Express + PostgreSQL)
+## Google Login
+Tambahkan kredensial OAuth Google ke `.env`:
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REDIRECT_URI` (opsional, default: `http://localhost:3000/api/auth/google/callback`)
+
+Login via Google tersedia di tombol "Login dengan Google" dan akan mengembalikan JWT ke browser.

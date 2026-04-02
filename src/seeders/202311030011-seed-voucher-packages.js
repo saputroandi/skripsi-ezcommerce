@@ -6,12 +6,12 @@ module.exports = {
     const find = slug => games.find(r=>r.slug===slug)?.id;
     const now = new Date();
     const rows = [
-      { gameId: find('mlbb'), name:'Diamonds 86', denomination:86, price: '20000' },
-      { gameId: find('mlbb'), name:'Diamonds 172', denomination:172, price: '39000' },
-      { gameId: find('free-fire'), name:'Diamonds 100', denomination:100, price: '15000' },
-      { gameId: find('pubg'), name:'UC 60', denomination:60, price: '14000' },
-      { gameId: find('genshin-impact'), name:'Genesis Crystal 300', denomination:300, price: '75000' },
-      { gameId: find('roblox'), name:'Robux 80', denomination:80, price: '15000' }
+      { gameId: find('hydrating-serum'), name:'Hydrating Serum 30ml', denomination:30, price: '129000' },
+      { gameId: find('hydrating-serum'), name:'Hydrating Serum 50ml', denomination:50, price: '189000' },
+      { gameId: find('gentle-cleanser'), name:'Gentle Cleanser 100ml', denomination:100, price: '99000' },
+      { gameId: find('daily-sunscreen'), name:'Daily Sunscreen 40ml', denomination:40, price: '119000' },
+      { gameId: find('barrier-moisturizer'), name:'Barrier Moisturizer 50gr', denomination:50, price: '149000' },
+      { gameId: find('tinted-lip-balm'), name:'Tinted Lip Balm - Rose', denomination:1, price: '79000' }
     ].map(r => ({
       ...r,
       [useCamel ? 'createdAt' : 'created_at']: now,

@@ -1,21 +1,26 @@
-<h1 class="text-3xl font-extrabold tracking-tight text-white mb-2">Semua Game</h1>
-<p class="text-sm text-gray-400 mb-6">Pilih game, lanjut top-up.</p>
+<section class="rounded-2xl border border-rose-100 bg-white px-5 py-6 shadow-sm mb-6">
+  <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">Semua Produk</h1>
+  <p class="text-sm text-gray-600 mt-2">Temukan skincare & kosmetik favoritmu.</p>
+  <div class="mt-4 inline-flex items-center rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+    Koleksi terbaru & best seller
+  </div>
+</section>
 
 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
   <% games.forEach(g => { %>
-    <a href="/games/<%= g.id %>/buy" class="group rounded-2xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition">
+    <a href="/products/<%= g.id %>/buy" class="group rounded-2xl overflow-hidden border border-rose-100 bg-white hover:border-rose-300 hover:shadow-md transition">
       <div class="relative">
         <% if (g.thumbnailUrl) { %>
-          <img src="<%= g.thumbnailUrl %>" alt="<%= g.name %>" class="w-full h-28 md:h-32 object-cover" />
+          <img src="<%= g.thumbnailUrl %>" alt="<%= g.name %>" class="w-full h-28 md:h-32 object-cover group-hover:scale-[1.02] transition duration-300" />
         <% } else { %>
-          <div class="w-full h-28 md:h-32 bg-white/5"></div>
+          <div class="w-full h-28 md:h-32 bg-rose-50"></div>
         <% } %>
-        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-black/0"></div>
       </div>
       <div class="p-3">
-        <p class="font-semibold text-white leading-snug"><%= g.name %></p>
+        <p class="font-semibold text-gray-900 leading-snug"><%= g.name %></p>
         <div class="mt-1 flex items-center justify-between">
-          <p class="text-xs text-gray-400">
+          <p class="text-xs text-gray-500">
             <%
               const genreText = (g.Genres && g.Genres.length)
                 ? g.Genres.map(x => x.name).join(', ')
@@ -23,7 +28,7 @@
             %>
             <%= genreText %>
           </p>
-          <span class="text-xs text-indigo-200 opacity-0 group-hover:opacity-100 transition">Top-up →</span>
+          <span class="text-xs text-rose-700 opacity-0 group-hover:opacity-100 transition">Lihat detail →</span>
         </div>
       </div>
     </a>

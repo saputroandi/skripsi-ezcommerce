@@ -5,11 +5,11 @@ module.exports = {
     const now = new Date();
 
     const base = [
-      { name:'Mobile Legends: Bang Bang', slug:'mlbb', genres:['MOBA'], thumbnailUrl:'https://placehold.co/300x160?text=MLBB' },
-      { name:'Free Fire', slug:'free-fire', genres:['Battle Royale'], thumbnailUrl:'https://placehold.co/300x160?text=Free+Fire' },
-      { name:'PUBG Mobile', slug:'pubg', genres:['Battle Royale'], thumbnailUrl:'https://placehold.co/300x160?text=PUBG' },
-      { name:'Genshin Impact', slug:'genshin-impact', genres:['Action RPG'], thumbnailUrl:'https://placehold.co/300x160?text=Genshin' },
-      { name:'Roblox', slug:'roblox', genres:['Sandbox'], thumbnailUrl:'https://placehold.co/300x160?text=Roblox' }
+      { name:'Hydrating Serum', slug:'hydrating-serum', genres:['Serum'], thumbnailUrl:'https://placehold.co/300x160?text=Hydrating+Serum' },
+      { name:'Gentle Cleanser', slug:'gentle-cleanser', genres:['Cleanser'], thumbnailUrl:'https://placehold.co/300x160?text=Gentle+Cleanser' },
+      { name:'Daily Sunscreen SPF50', slug:'daily-sunscreen', genres:['Sunscreen'], thumbnailUrl:'https://placehold.co/300x160?text=SPF50' },
+      { name:'Barrier Repair Moisturizer', slug:'barrier-moisturizer', genres:['Moisturizer'], thumbnailUrl:'https://placehold.co/300x160?text=Moisturizer' },
+      { name:'Tinted Lip Balm', slug:'tinted-lip-balm', genres:['Makeup'], thumbnailUrl:'https://placehold.co/300x160?text=Lip+Balm' }
     ];
 
     // remove existing by slug

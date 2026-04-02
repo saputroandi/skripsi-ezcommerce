@@ -9,7 +9,6 @@
     "migrate": "sequelize db:migrate",
     "seed": "sequelize db:seed:all",
     "swagger": "echo 'Swagger served at /api-docs'",
-
     "perf:smoke": "k6 run perf/k6/smoke.js",
     "perf:api": "k6 run perf/k6/api.js",
     "perf:order": "k6 run perf/k6/order-flow.js",
@@ -24,6 +23,7 @@
     "express": "^4.19.2",
     "express-ejs-layouts": "^2.5.1",
     "express-rate-limit": "^7.0.0",
+    "google-auth-library": "^9.15.1",
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",

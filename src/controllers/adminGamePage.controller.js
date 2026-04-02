@@ -84,7 +84,7 @@ exports.createGame = async (req, res, next) => {
     });
     await g.setGenres(genreIds);
 
-    res.redirect('/admin/games');
+    res.redirect('/admin/products');
   } catch (e) {
     next(e);
   }
@@ -120,7 +120,7 @@ exports.updateGame = async (req, res, next) => {
 
     await g.setGenres(genreIds);
 
-    res.redirect('/admin/games');
+    res.redirect('/admin/products');
   } catch (e) {
     next(e);
   }
@@ -135,7 +135,7 @@ exports.softToggle = async (req, res, next) => {
     g.isActive = !g.isActive;
     await g.save();
 
-    res.redirect('/admin/games');
+    res.redirect('/admin/products');
   } catch (e) {
     next(e);
   }
@@ -148,7 +148,7 @@ exports.deleteGame = async (req, res, next) => {
     if (!g) return res.status(404).send('Not found');
 
     await g.destroy();
-    res.redirect('/admin/games');
+    res.redirect('/admin/products');
   } catch (e) {
     next(e);
   }

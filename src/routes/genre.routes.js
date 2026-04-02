@@ -4,14 +4,14 @@ const auth = require('../middleware/auth');
 
 /**
  * @openapi
- * /api/genres:
+ * /api/categories:
  *   get:
- *     tags: [Genres]
+ *     tags: [Categories]
  *     responses:
  *       200:
- *         description: List genres
+ *         description: List categories
  *   post:
- *     tags: [Genres]
+ *     tags: [Categories]
  *     security: [ { bearerAuth: [] } ]
  *     requestBody:
  *       required: true
@@ -23,15 +23,15 @@ const auth = require('../middleware/auth');
  *               name: { type: string }
  *     responses:
  *       200:
- *         description: Create genre
- * /api/genres/{id}:
+ *         description: Create category
+ * /api/categories/{id}:
  *   delete:
- *     tags: [Genres]
+ *     tags: [Categories]
  *     security: [ { bearerAuth: [] } ]
  *     parameters: [ { in: path, name: id, required: true, schema: { type: integer } } ]
  *     responses:
  *       200:
- *         description: Delete genre
+ *         description: Delete category
  */
 
 router.get('/', ctrl.list);

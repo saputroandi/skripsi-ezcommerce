@@ -30,7 +30,7 @@ export default function () {
 
   if (!email || !password) {
     // Skip protected flow if creds are not provided.
-    const ping = http.get(`${BASE_URL}/api/games`);
+    const ping = http.get(`${BASE_URL}/api/products`);
     check(ping, { 'fallback status 200': (r) => r.status === 200 });
     sleep(1);
     return;

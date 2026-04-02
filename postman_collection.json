@@ -24,8 +24,8 @@
       "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"url":{"raw":"http://localhost:3000/api/auth/login","protocol":"http","host":["localhost"],"port":"3000","path":["api","auth","login"]},"body":{"mode":"raw","raw":"{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin123!\"\n}"}}
     },
     {
-      "name": "List Games",
-      "request": {"method":"GET","url":{"raw":"http://localhost:3000/api/games","protocol":"http","host":["localhost"],"port":"3000","path":["api","games"]}}
+      "name": "List Products",
+      "request": {"method":"GET","url":{"raw":"http://localhost:3000/api/products","protocol":"http","host":["localhost"],"port":"3000","path":["api","products"]}}
     },
     {
       "name": "Create Order",

@@ -1,14 +1,14 @@
 const router = require('express').Router();
 /**
  * @openapi
- * /api/games:
+ * /api/products:
  *   get:
- *     tags: [Games]
- *     responses: { 200: { description: 'List games' } }
+ *     tags: [Products]
+ *     responses: { 200: { description: 'List products' } }
  *   post:
- *     tags: [Games]
+ *     tags: [Products]
  *     security: [ { bearerAuth: [] } ]
- *     responses: { 200: { description: 'Create game' } }
+ *     responses: { 200: { description: 'Create product' } }
  */
 const ctrl = require('../controllers/game.controller');
 const auth = require('../middleware/auth');

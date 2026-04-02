@@ -23,8 +23,8 @@
       </form>
 
       <div class="flex flex-col items-start sm:items-end gap-2">
-        <div class="text-xs text-gray-500">Total: <span class="font-semibold text-gray-900"><%= orders.length %></span> order</div>
-        <a href="/payment/bca" class="text-xs font-semibold text-indigo-700 hover:underline">Instruksi pembayaran BCA</a>
+        <div class="text-xs text-gray-500">Total: <span class="font-semibold text-gray-900"><%= typeof totalCount !== 'undefined' ? totalCount : orders.length %></span> order</div>
+        <a href="/payment/bca" class="text-xs font-semibold text-rose-700 hover:underline">Instruksi pembayaran</a>
       </div>
     </div>
   </div>
@@ -35,78 +35,209 @@
   <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
   <% if (needsProof) { %>
     <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
-      <p class="text-sm text-gray-700">Sudah transfer? Upload bukti pembayaran untuk mempercepat verifikasi admin.</p>
+      <p class="text-sm text-gray-700">Sudah transfer? Upload bukti pembayaran untuk mempercepat verifikasi admin dan proses pengiriman.</p>
     </div>
   <% } %>
     <div class="overflow-x-auto">
-      <table class="w-full min-w-[980px] text-sm">
-        <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
-          <tr>
-            <th class="text-left px-4 py-3 font-semibold">No. Transaksi</th>
-            <th class="text-left px-4 py-3 font-semibold">Tanggal</th>
-            <th class="text-left px-4 py-3 font-semibold">Game</th>
-            <th class="text-left px-4 py-3 font-semibold">Paket</th>
-            <th class="text-left px-4 py-3 font-semibold">UID</th>
-            <th class="text-left px-4 py-3 font-semibold">WhatsApp</th>
-            <th class="text-left px-4 py-3 font-semibold">Total</th>
-            <th class="text-left px-4 py-3 font-semibold">Status</th>
-            <th class="text-left px-4 py-3 font-semibold">Bukti</th>
-            <th class="text-left px-4 py-3 font-semibold">Aksi</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <% if (!orders.length) { %>
+        <table class="w-full min-w-[860px] text-sm">
+          <thead class="bg-rose-50 border-b border-rose-100 text-gray-700">
             <tr>
-              <td colspan="10" class="px-4 py-10 text-center text-gray-500">Belum ada transaksi.</td>
+              <th class="text-left px-3 py-2.5 font-semibold">No. Transaksi</th>
+              <th class="text-left px-3 py-2.5 font-semibold">Tanggal</th>
+              <th class="text-left px-3 py-2.5 font-semibold">Produk</th>
+              <th class="text-left px-3 py-2.5 font-semibold">Qty</th>
+              <th class="text-left px-3 py-2.5 font-semibold">Total</th>
+              <th class="text-left px-3 py-2.5 font-semibold">Status</th>
+              <th class="text-left px-3 py-2.5 font-semibold">Detail</th>
             </tr>
-          <% } %>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% if (!orders.length) { %>
+              <tr>
+                <td colspan="7" class="px-4 py-10 text-center text-gray-500">Belum ada transaksi.</td>
+              </tr>
+            <% } %>
 
           <% orders.forEach(o => { %>
+            <% const createdDate = o.createdAt ? new Date(o.createdAt) : null; %>
+            <% const dateLabel = createdDate ? createdDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'; %>
+            <% const dateDetail = createdDate ? createdDate.toLocaleString('id-ID') : '-'; %>
+            <% const addr = o.UserAddress; %>
+            <% const addrLabel = addr?.label || 'Alamat'; %>
+            <% const addrRecipient = addr?.recipientName || '-'; %>
+            <% const addrContact = addr?.contactNumber || '-'; %>
+            <% const addrText = addr?.address || '-'; %>
+            <% const addrMeta = [addr?.city, addr?.postalCode].filter(Boolean).join(' • ') || '-'; %>
+            <% const addrNotes = addr?.notes || ''; %>
+            <% const items = o.OrderItems || []; %>
+            <% const totalQty = items.length ? items.reduce((sum, it) => sum + (it.quantity || 1), 0) : (o.quantity || 1); %>
+            <% const primaryItem = items[0]; %>
+            <% const primaryName = primaryItem?.VoucherPackage?.Game?.name || primaryItem?.VoucherPackage?.name || o.VoucherPackage?.Game?.name || '-'; %>
+            <% const productLabel = items.length > 1 ? `${primaryName} +${items.length - 1} lainnya` : primaryName; %>
+            <% const itemsData = items.length
+              ? items.map(i => ({
+                name: i.VoucherPackage?.Game?.name || i.VoucherPackage?.name || '-',
+                variant: i.VoucherPackage?.name || '-',
+                qty: i.quantity || 1,
+                total: i.totalPrice || 0
+              }))
+              : [{
+                name: o.VoucherPackage?.Game?.name || '-',
+                variant: o.VoucherPackage?.name || '-',
+                qty: o.quantity || 1,
+                total: o.finalPrice || 0
+              }]; %>
             <tr class="hover:bg-gray-50">
-              <td class="px-4 py-3 font-semibold text-gray-900">
+              <td class="px-3 py-2.5 font-semibold text-gray-900">
                 <%= o.transactionCode ? o.transactionCode : ('#' + o.id) %>
               </td>
-              <td class="px-4 py-3 text-gray-700"><%= (o.createdAt ? new Date(o.createdAt).toLocaleString() : '-') %></td>
-              <td class="px-4 py-3 text-gray-700"><%= o.VoucherPackage?.Game?.name || '-' %></td>
-              <td class="px-4 py-3 text-gray-700"><%= o.VoucherPackage?.name || '-' %></td>
-              <td class="px-4 py-3 text-gray-700"><%= o.uid %></td>
-              <td class="px-4 py-3 text-gray-700"><%= o.whatsapp || '-' %></td>
-              <td class="px-4 py-3 font-semibold text-gray-900">Rp <%= o.finalPrice %></td>
-              <td class="px-4 py-3">
+              <td class="px-3 py-2.5 text-gray-700"><%= dateLabel %></td>
+              <td class="px-3 py-2.5 text-gray-700"><%= productLabel %></td>
+              <td class="px-3 py-2.5 text-gray-700"><%= totalQty %></td>
+              <td class="px-3 py-2.5 font-semibold text-gray-900">Rp <%= o.finalPrice %></td>
+              <td class="px-3 py-2.5">
                 <% const status = o.status || 'pending'; %>
-                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border
+                <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold border
                   <%= status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (status === 'failed' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200') %>
                 ">
                   <%= status %>
                 </span>
               </td>
-              <td class="px-4 py-3 text-gray-700">
-                <% if (o.paymentProof) { %>
-                  <button type="button" class="viewProofBtn text-indigo-700 hover:underline" data-url="<%= o.paymentProof %>">Lihat</button>
-                <% } else { %>
-                  <span class="text-gray-400">-</span>
-                <% } %>
-              </td>
-              <td class="px-4 py-3">
-                <% if ((o.status || 'pending') === 'pending') { %>
-                  <button
-                    type="button"
-                    class="uploadProofBtn inline-flex items-center rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-800"
-                    data-order-id="<%= o.id %>"
-                    data-trx="<%= o.transactionCode || ('#' + o.id) %>">
-                    Upload Bukti
-                  </button>
-                <% } else { %>
-                  <span class="text-gray-400 text-xs">-</span>
-                <% } %>
+              <td class="px-3 py-2.5">
+                <button
+                  type="button"
+                  class="orderDetailBtn inline-flex items-center rounded-xl border border-rose-100 bg-white hover:bg-rose-50 px-3 py-1.5 text-xs font-semibold text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300"
+                  data-order-id="<%= o.id %>"
+                  data-trx="<%= o.transactionCode ? o.transactionCode : ('#' + o.id) %>"
+                  data-date="<%= dateDetail %>"
+                  data-total="<%= o.finalPrice %>"
+                  data-status="<%= status %>"
+                  data-uid="<%= o.uid || '-' %>"
+                  data-whatsapp="<%= o.whatsapp || '-' %>"
+                  data-items="<%= JSON.stringify(itemsData) %>"
+                  data-addr-label="<%= addrLabel %>"
+                  data-addr-recipient="<%= addrRecipient %>"
+                  data-addr-contact="<%= addrContact %>"
+                  data-addr-text="<%= addrText %>"
+                  data-addr-meta="<%= addrMeta %>"
+                  data-addr-notes="<%= addrNotes %>"
+                  data-proof="<%= o.paymentProof || '' %>">
+                  Lihat detail
+                </button>
               </td>
             </tr>
           <% }) %>
         </tbody>
       </table>
     </div>
+
+    <% 
+      const currentPage = typeof page !== 'undefined' ? page : 1;
+      const size = typeof pageSize !== 'undefined' ? pageSize : (orders.length || 0);
+      const total = typeof totalCount !== 'undefined' ? totalCount : orders.length;
+      const pages = typeof totalPages !== 'undefined' ? totalPages : 1;
+      const startIdx = total ? ((currentPage - 1) * size + 1) : 0;
+      const endIdx = total ? ((currentPage - 1) * size + orders.length) : 0;
+
+      const buildPageUrl = (p) => {
+        const params = [];
+        if (typeof q !== 'undefined' && q) params.push('q=' + encodeURIComponent(q));
+        if (p && p !== 1) params.push('page=' + p);
+        return '/orders' + (params.length ? ('?' + params.join('&')) : '');
+      };
+    %>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 py-3 border-t border-rose-100 bg-rose-50/60">
+      <div class="text-xs text-gray-600">
+        Menampilkan <span class="font-semibold text-gray-900"><%= startIdx %></span>–<span class="font-semibold text-gray-900"><%= endIdx %></span> dari <span class="font-semibold text-gray-900"><%= total %></span>
+      </div>
+
+      <% if (pages > 1) { %>
+        <div class="flex items-center gap-2">
+          <% if (currentPage > 1) { %>
+            <a href="<%= buildPageUrl(currentPage - 1) %>" class="rounded-lg border border-rose-100 bg-white hover:bg-rose-50 px-3 py-1.5 text-xs font-semibold text-gray-800">Prev</a>
+          <% } else { %>
+            <span class="rounded-lg border border-rose-100 bg-white px-3 py-1.5 text-xs font-semibold text-gray-400">Prev</span>
+          <% } %>
+
+          <span class="text-xs text-gray-600">Page <span class="font-semibold text-gray-900"><%= currentPage %></span> / <span class="font-semibold text-gray-900"><%= pages %></span></span>
+
+          <% if (currentPage < pages) { %>
+            <a href="<%= buildPageUrl(currentPage + 1) %>" class="rounded-lg border border-rose-100 bg-white hover:bg-rose-50 px-3 py-1.5 text-xs font-semibold text-gray-800">Next</a>
+          <% } else { %>
+            <span class="rounded-lg border border-rose-100 bg-white px-3 py-1.5 text-xs font-semibold text-gray-400">Next</span>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
   </div>
 </section>
+
+<!-- Detail modal -->
+<div id="orderDetailModal" class="fixed inset-0 z-[9998] hidden">
+  <div id="orderDetailBackdrop" class="absolute inset-0 bg-black/40"></div>
+  <div class="absolute inset-x-0 top-10 sm:top-16 mx-auto w-[94%] max-w-2xl rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-gray-900">Detail Transaksi</p>
+        <p id="detailTrx" class="text-xs text-gray-500 truncate">-</p>
+      </div>
+      <button type="button" id="orderDetailClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
+    </div>
+    <div class="p-4 space-y-4">
+      <div class="grid gap-3 sm:grid-cols-2 text-sm text-gray-700">
+        <div>
+          <p class="text-xs text-gray-500">Tanggal</p>
+          <p id="detailDate" class="font-semibold text-gray-900">-</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Status</p>
+          <span id="detailStatus" class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border">-</span>
+        </div>
+        <div class="sm:col-span-2">
+          <p class="text-xs text-gray-500">Items</p>
+          <ul id="detailItems" class="mt-1 space-y-1 text-sm text-gray-700"></ul>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Catatan</p>
+          <p id="detailUid" class="font-semibold text-gray-900">-</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">WhatsApp</p>
+          <p id="detailWhatsapp" class="font-semibold text-gray-900">-</p>
+        </div>
+        <div class="sm:col-span-2">
+          <p class="text-xs text-gray-500">Alamat Pengiriman</p>
+          <p id="detailAddrLabel" class="font-semibold text-gray-900">-</p>
+          <p id="detailAddrRecipient" class="text-xs text-gray-500">-</p>
+          <p id="detailAddrContact" class="text-xs text-gray-500">-</p>
+          <p id="detailAddrText" class="mt-1 text-sm text-gray-700 whitespace-pre-line">-</p>
+          <p id="detailAddrMeta" class="text-xs text-gray-500">-</p>
+          <p id="detailAddrNotes" class="text-xs text-gray-500"></p>
+        </div>
+        <div class="sm:col-span-2">
+          <p class="text-xs text-gray-500">Total Nominal</p>
+          <p id="detailTotal" class="text-lg font-semibold text-gray-900">-</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-between gap-3 border-t border-gray-200 pt-4">
+        <div>
+          <p class="text-xs text-gray-500">Bukti pembayaran</p>
+          <button type="button" id="detailProofBtn" class="viewProofBtn text-sm font-semibold text-rose-700 hover:underline hidden" data-url="">Lihat bukti</button>
+          <span id="detailProofEmpty" class="text-sm text-gray-400">Belum ada</span>
+        </div>
+        <button
+          type="button"
+          id="detailUploadBtn"
+          class="uploadProofBtn hidden inline-flex items-center rounded-xl border border-rose-100 bg-white hover:bg-rose-50 px-3 py-2 text-xs font-semibold text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300"
+          data-order-id=""
+          data-trx="">
+          Upload Bukti
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Proof preview modal -->
 <div id="proofPreviewModal" class="fixed inset-0 z-[9998] hidden">
@@ -132,8 +263,8 @@
 <!-- Upload proof modal -->
 <div id="proofModal" class="fixed inset-0 z-[9998] hidden">
   <div id="proofBackdrop" class="absolute inset-0 bg-black/30"></div>
-  <div class="absolute inset-x-0 top-16 sm:top-20 mx-auto w-[94%] max-w-md rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+    <div class="absolute inset-x-0 top-16 sm:top-20 mx-auto w-[94%] max-w-md rounded-2xl border border-rose-100 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-rose-100 bg-rose-50">
       <div class="min-w-0">
         <p class="text-sm font-semibold text-gray-900">Upload Bukti Pembayaran</p>
         <p id="proofTrx" class="text-xs text-gray-500 truncate">-</p>
@@ -145,10 +276,10 @@
       <input type="hidden" name="orderId" id="proofOrderId" />
       <div>
         <label class="block text-xs font-semibold text-gray-700 mb-1">File bukti</label>
-        <input id="proofFile" type="file" name="file" accept="image/*,.pdf" class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-gray-200 file:bg-white hover:file:bg-gray-50" />
+        <input id="proofFile" type="file" name="file" accept="image/*,.pdf" class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-rose-100 file:bg-white hover:file:bg-rose-50" />
         <p class="mt-1 text-xs text-gray-500">Maks 5MB. Format: JPG/PNG/WebP/PDF.</p>
       </div>
-      <button id="proofSubmit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold">Upload</button>
+      <button id="proofSubmit" class="w-full bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-semibold">Upload</button>
     </form>
   </div>
 </div>
@@ -161,6 +292,25 @@
   const previewImg = document.getElementById('proofPreviewImage');
   const previewFrame = document.getElementById('proofPreviewFrame');
   const previewDownload = document.getElementById('proofPreviewDownload');
+  const detailModal = document.getElementById('orderDetailModal');
+  const detailBackdrop = document.getElementById('orderDetailBackdrop');
+  const detailClose = document.getElementById('orderDetailClose');
+  const detailTrx = document.getElementById('detailTrx');
+  const detailDate = document.getElementById('detailDate');
+  const detailItems = document.getElementById('detailItems');
+  const detailUid = document.getElementById('detailUid');
+  const detailWhatsapp = document.getElementById('detailWhatsapp');
+  const detailTotal = document.getElementById('detailTotal');
+  const detailStatus = document.getElementById('detailStatus');
+  const detailAddrLabel = document.getElementById('detailAddrLabel');
+  const detailAddrRecipient = document.getElementById('detailAddrRecipient');
+  const detailAddrContact = document.getElementById('detailAddrContact');
+  const detailAddrText = document.getElementById('detailAddrText');
+  const detailAddrMeta = document.getElementById('detailAddrMeta');
+  const detailAddrNotes = document.getElementById('detailAddrNotes');
+  const detailProofBtn = document.getElementById('detailProofBtn');
+  const detailProofEmpty = document.getElementById('detailProofEmpty');
+  const detailUploadBtn = document.getElementById('detailUploadBtn');
 
   function isPdfUrl(url){
     return /\.pdf($|[?#])/i.test(String(url || ''));
@@ -193,6 +343,105 @@
     previewFrame.removeAttribute('src');
   }
 
+  function statusBadgeClass(status){
+    if (status === 'paid') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (status === 'failed') return 'bg-rose-50 text-rose-700 border-rose-200';
+    return 'bg-amber-50 text-amber-700 border-amber-200';
+  }
+
+  function escapeHtml(value){
+    return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function openDetail(btn){
+    if (!detailModal) return;
+    const data = {
+      trx: btn.getAttribute('data-trx') || '-',
+      date: btn.getAttribute('data-date') || '-',
+      total: btn.getAttribute('data-total') || '-',
+      status: btn.getAttribute('data-status') || 'pending',
+      uid: btn.getAttribute('data-uid') || '-',
+      whatsapp: btn.getAttribute('data-whatsapp') || '-',
+      items: btn.getAttribute('data-items') || '[]',
+      addrLabel: btn.getAttribute('data-addr-label') || '-',
+      addrRecipient: btn.getAttribute('data-addr-recipient') || '-',
+      addrContact: btn.getAttribute('data-addr-contact') || '-',
+      addrText: btn.getAttribute('data-addr-text') || '-',
+      addrMeta: btn.getAttribute('data-addr-meta') || '-',
+      addrNotes: btn.getAttribute('data-addr-notes') || '',
+      proof: btn.getAttribute('data-proof') || '',
+      orderId: btn.getAttribute('data-order-id') || '',
+    };
+
+    detailTrx && (detailTrx.textContent = data.trx);
+    detailDate && (detailDate.textContent = data.date);
+    if (detailItems) {
+      let items = [];
+      try {
+        items = JSON.parse(data.items || '[]');
+      } catch {
+        items = [];
+      }
+      detailItems.innerHTML = (items.length ? items : [{ name: '-', variant: '-', qty: '-', total: '-' }])
+        .map((item) => {
+          const name = escapeHtml(item.name || '-');
+          const variantRaw = item.variant && item.variant !== item.name ? item.variant : '';
+          const variant = variantRaw ? ` • ${escapeHtml(variantRaw)}` : '';
+          const qty = item.qty || 1;
+          return `<li class="flex items-center justify-between gap-3">
+            <span class="text-gray-700">${name}${variant}</span>
+            <span class="text-gray-500">x${qty}</span>
+          </li>`;
+        })
+        .join('');
+    }
+    detailUid && (detailUid.textContent = data.uid);
+    detailWhatsapp && (detailWhatsapp.textContent = data.whatsapp);
+    detailTotal && (detailTotal.textContent = `Rp ${data.total}`);
+    detailAddrLabel && (detailAddrLabel.textContent = data.addrLabel);
+    detailAddrRecipient && (detailAddrRecipient.textContent = `Penerima: ${data.addrRecipient}`);
+    detailAddrContact && (detailAddrContact.textContent = `Kontak: ${data.addrContact}`);
+    detailAddrText && (detailAddrText.textContent = data.addrText);
+    detailAddrMeta && (detailAddrMeta.textContent = data.addrMeta);
+    detailAddrNotes && (detailAddrNotes.textContent = data.addrNotes ? `Catatan: ${data.addrNotes}` : '');
+
+    if (detailStatus) {
+      detailStatus.textContent = data.status;
+      detailStatus.className = `inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border ${statusBadgeClass(data.status)}`;
+    }
+
+    if (detailProofBtn && detailProofEmpty) {
+      if (data.proof) {
+        detailProofBtn.classList.remove('hidden');
+        detailProofBtn.setAttribute('data-url', data.proof);
+        detailProofEmpty.classList.add('hidden');
+      } else {
+        detailProofBtn.classList.add('hidden');
+        detailProofBtn.setAttribute('data-url', '');
+        detailProofEmpty.classList.remove('hidden');
+      }
+    }
+
+    if (detailUploadBtn) {
+      if (data.status === 'pending') {
+        detailUploadBtn.classList.remove('hidden');
+        detailUploadBtn.setAttribute('data-order-id', data.orderId);
+        detailUploadBtn.setAttribute('data-trx', data.trx);
+      } else {
+        detailUploadBtn.classList.add('hidden');
+        detailUploadBtn.setAttribute('data-order-id', '');
+        detailUploadBtn.setAttribute('data-trx', '');
+      }
+    }
+
+    detailModal.classList.remove('hidden');
+  }
+
+  function closeDetail(){
+    if (!detailModal) return;
+    detailModal.classList.add('hidden');
+  }
+
   document.querySelectorAll('.viewProofBtn').forEach((btn)=>{
     btn.addEventListener('click', ()=>{
       openPreview(btn.getAttribute('data-url'));
@@ -201,6 +450,15 @@
 
   previewBackdrop?.addEventListener('click', closePreview);
   previewClose?.addEventListener('click', closePreview);
+
+  detailBackdrop?.addEventListener('click', closeDetail);
+  detailClose?.addEventListener('click', closeDetail);
+
+  document.querySelectorAll('.orderDetailBtn').forEach((btn)=>{
+    btn.addEventListener('click', ()=>{
+      openDetail(btn);
+    });
+  });
   window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && previewModal && !previewModal.classList.contains('hidden')) closePreview(); });
 
   const modal = document.getElementById('proofModal');

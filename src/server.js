@@ -26,15 +26,16 @@ const limiter = rateLimit({
   windowMs: process.env.RATE_LIMIT_WINDOW_MS ? parseInt(process.env.RATE_LIMIT_WINDOW_MS) : 15*60*1000,
   max: process.env.RATE_LIMIT_MAX ? parseInt(process.env.RATE_LIMIT_MAX) : 100
 });
-app.use(limiter);
 
 // Routes
+app.use('/api', limiter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/games', require('./routes/game.routes'));
-app.use('/api/genres', require('./routes/genre.routes'));
-app.use('/api/vouchers', require('./routes/voucher.routes'));
+app.use('/api/products', require('./routes/game.routes'));
+app.use('/api/categories', require('./routes/genre.routes'));
+app.use('/api/variants', require('./routes/voucher.routes'));
 app.use('/api/orders', require('./routes/order.routes'));
+app.use('/api/cart', require('./routes/cart.routes'));
 app.use('/api/ai', require('./routes/ai.routes'));
 app.use('/admin', require('./routes/admin.routes'));
 app.use('/api/payments', require('./routes/payment.routes'));

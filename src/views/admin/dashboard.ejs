@@ -2,7 +2,7 @@
   <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
     <div>
       <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Dashboard Admin</h1>
-      <p class="text-sm text-gray-600">Daftar seluruh transaksi/order.</p>
+      <p class="text-sm text-gray-600">Daftar seluruh transaksi pesanan.</p>
     </div>
 
     <div class="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
@@ -12,17 +12,49 @@
           name="q"
           value="<%= typeof q !== 'undefined' ? q : '' %>"
           placeholder="Cari nomor transaksi..."
-          class="w-full sm:w-80 md:w-96 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          class="w-full sm:w-64 md:w-80 rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <input
+            type="date"
+            name="startDate"
+            value="<%= typeof startDate !== 'undefined' ? startDate : '' %>"
+            class="rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-500"
+          />
+          <input
+            type="date"
+            name="endDate"
+            value="<%= typeof endDate !== 'undefined' ? endDate : '' %>"
+            class="rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-500"
+          />
+        </div>
+
         <div class="flex items-center gap-2">
-          <button class="w-full sm:w-auto rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-800">Search</button>
-          <% if (typeof q !== 'undefined' && q) { %>
-            <a href="/admin/dashboard" class="text-sm text-indigo-700 hover:underline">Reset</a>
+          <button class="w-full sm:w-auto rounded-xl border border-rose-100 bg-white hover:bg-rose-50 px-3 py-2 text-sm font-semibold text-gray-800">Filter</button>
+          <% const hasFilters = (typeof q !== 'undefined' && q) || (typeof startDate !== 'undefined' && startDate) || (typeof endDate !== 'undefined' && endDate); %>
+          <% if (hasFilters) { %>
+            <a href="/admin/dashboard" class="text-sm text-rose-700 hover:underline">Reset</a>
           <% } %>
         </div>
       </form>
 
-      <div class="text-xs text-gray-500">Total: <span class="font-semibold text-gray-900"><%= orders.length %></span> order</div>
+      <div class="flex items-center gap-3">
+        <% 
+          const reportParams = [];
+          if (typeof q !== 'undefined' && q) reportParams.push('q=' + encodeURIComponent(q));
+          if (typeof startDate !== 'undefined' && startDate) reportParams.push('startDate=' + encodeURIComponent(startDate));
+          if (typeof endDate !== 'undefined' && endDate) reportParams.push('endDate=' + encodeURIComponent(endDate));
+          const reportUrl = '/admin/dashboard/report.csv' + (reportParams.length ? ('?' + reportParams.join('&')) : '');
+        %>
+        <a
+          href="<%= reportUrl %>"
+          class="inline-flex items-center justify-center rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 text-sm font-semibold"
+        >
+          Download CSV
+        </a>
+        <div class="text-xs text-gray-500">Total: <span class="font-semibold text-gray-900"><%= typeof totalCount !== 'undefined' ? totalCount : orders.length %></span> order</div>
+      </div>
     </div>
   </div>
 </section>
@@ -40,17 +72,18 @@
 <% } %>
 
 <section>
-  <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+  <div class="rounded-2xl border border-rose-100 bg-white shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="w-full min-w-[1180px] text-sm">
-        <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
+      <table class="w-full min-w-[1240px] text-sm">
+        <thead class="bg-rose-50 border-b border-rose-100 text-gray-700">
           <tr>
             <th class="text-left px-4 py-3 font-semibold">No. Transaksi</th>
             <th class="text-left px-4 py-3 font-semibold">Tanggal</th>
             <th class="text-left px-4 py-3 font-semibold">User</th>
-            <th class="text-left px-4 py-3 font-semibold">Game</th>
-            <th class="text-left px-4 py-3 font-semibold">Paket</th>
-            <th class="text-left px-4 py-3 font-semibold">UID</th>
+            <th class="text-left px-4 py-3 font-semibold">Produk</th>
+            <th class="text-left px-4 py-3 font-semibold">Varian</th>
+            <th class="text-left px-4 py-3 font-semibold">Qty</th>
+            <th class="text-left px-4 py-3 font-semibold">Catatan</th>
             <th class="text-left px-4 py-3 font-semibold">WhatsApp</th>
             <th class="text-left px-4 py-3 font-semibold">Total</th>
             <th class="text-left px-4 py-3 font-semibold">Status</th>
@@ -58,36 +91,44 @@
             <th class="text-left px-4 py-3 font-semibold">Aksi</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
+        <tbody class="divide-y divide-rose-100">
           <% if (!orders.length) { %>
             <tr>
-              <td colspan="11" class="px-4 py-10 text-center text-gray-500">Belum ada order.</td>
+              <td colspan="12" class="px-4 py-10 text-center text-gray-500">Belum ada order.</td>
             </tr>
           <% } %>
 
           <% orders.forEach(o => { %>
-            <tr class="hover:bg-gray-50">
+            <% const items = o.OrderItems || []; %>
+            <% const totalQty = items.length ? items.reduce((sum, it) => sum + (it.quantity || 1), 0) : (o.quantity || 1); %>
+            <% const primaryItem = items[0]; %>
+            <% const productName = primaryItem?.VoucherPackage?.Game?.name || o.VoucherPackage?.Game?.name || '-'; %>
+            <% const variantLabel = items.length > 1
+              ? `${primaryItem?.VoucherPackage?.name || 'Varian'} +${items.length - 1} item`
+              : (primaryItem?.VoucherPackage?.name || o.VoucherPackage?.name || '-'); %>
+            <tr class="hover:bg-rose-50/60">
               <td class="px-4 py-3 font-semibold text-gray-900">
                 <%= o.transactionCode ? o.transactionCode : ('#' + o.id) %>
               </td>
               <td class="px-4 py-3 text-gray-700"><%= (o.createdAt ? new Date(o.createdAt).toLocaleString() : '-') %></td>
               <td class="px-4 py-3 text-gray-700"><%= o.User?.email || '-' %></td>
-              <td class="px-4 py-3 text-gray-700"><%= o.VoucherPackage?.Game?.name || '-' %></td>
-              <td class="px-4 py-3 text-gray-700"><%= o.VoucherPackage?.name || '-' %></td>
+              <td class="px-4 py-3 text-gray-700"><%= productName %></td>
+              <td class="px-4 py-3 text-gray-700"><%= variantLabel %></td>
+              <td class="px-4 py-3 text-gray-700"><%= totalQty %></td>
               <td class="px-4 py-3 text-gray-700"><%= o.uid %></td>
               <td class="px-4 py-3 text-gray-700"><%= o.whatsapp || '-' %></td>
               <td class="px-4 py-3 font-semibold text-gray-900">Rp <%= o.finalPrice %></td>
               <td class="px-4 py-3">
                 <% const status = o.status || 'pending'; %>
                 <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border
-                  <%= status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (status === 'failed' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200') %>
+                  <%= status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (status === 'failed' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-rose-50/70 text-rose-700 border-rose-200') %>
                 ">
                   <%= status %>
                 </span>
               </td>
               <td class="px-4 py-3 text-gray-700">
                 <% if (o.paymentProof) { %>
-                  <button type="button" class="viewProofBtn text-indigo-700 hover:underline" data-url="<%= o.paymentProof %>">Lihat</button>
+                  <button type="button" class="viewProofBtn text-rose-700 hover:underline" data-url="<%= o.paymentProof %>">Lihat</button>
                 <% } else { %>
                   <span class="text-gray-400">-</span>
                 <% } %>
@@ -95,8 +136,8 @@
               <td class="px-4 py-3">
                 <% if ((o.status || 'pending') === 'pending') { %>
                   <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-                    <button type="button" class="adminSetStatus rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 text-xs font-semibold" data-order-id="<%= o.id %>" data-status="paid">Set Paid</button>
-                    <button type="button" class="adminSetStatus rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 text-xs font-semibold" data-order-id="<%= o.id %>" data-status="failed">Set Failed</button>
+                    <button type="button" class="adminSetStatus rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300" data-order-id="<%= o.id %>" data-status="paid">Set Paid</button>
+                    <button type="button" class="adminSetStatus rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300" data-order-id="<%= o.id %>" data-status="failed">Set Failed</button>
                   </div>
                 <% } else { %>
                   <span class="text-gray-400 text-xs">-</span>
@@ -106,6 +147,48 @@
           <% }) %>
         </tbody>
       </table>
+    </div>
+
+    <% 
+      const currentPage = typeof page !== 'undefined' ? page : 1;
+      const size = typeof pageSize !== 'undefined' ? pageSize : (orders.length || 0);
+      const total = typeof totalCount !== 'undefined' ? totalCount : orders.length;
+      const pages = typeof totalPages !== 'undefined' ? totalPages : 1;
+      const startIdx = total ? ((currentPage - 1) * size + 1) : 0;
+      const endIdx = total ? ((currentPage - 1) * size + orders.length) : 0;
+
+      const buildPageUrl = (p) => {
+        const params = [];
+        if (typeof q !== 'undefined' && q) params.push('q=' + encodeURIComponent(q));
+        if (typeof startDate !== 'undefined' && startDate) params.push('startDate=' + encodeURIComponent(startDate));
+        if (typeof endDate !== 'undefined' && endDate) params.push('endDate=' + encodeURIComponent(endDate));
+        if (p && p !== 1) params.push('page=' + p);
+        return '/admin/dashboard' + (params.length ? ('?' + params.join('&')) : '');
+      };
+    %>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 py-3 border-t border-rose-100 bg-rose-50/60">
+      <div class="text-xs text-gray-600">
+        Menampilkan <span class="font-semibold text-gray-900"><%= startIdx %></span>–<span class="font-semibold text-gray-900"><%= endIdx %></span> dari <span class="font-semibold text-gray-900"><%= total %></span>
+      </div>
+
+      <% if (pages > 1) { %>
+        <div class="flex items-center gap-2">
+          <% if (currentPage > 1) { %>
+            <a href="<%= buildPageUrl(currentPage - 1) %>" class="rounded-lg border border-rose-100 bg-white hover:bg-rose-50 px-3 py-1.5 text-xs font-semibold text-gray-800">Prev</a>
+          <% } else { %>
+            <span class="rounded-lg border border-rose-100 bg-white px-3 py-1.5 text-xs font-semibold text-gray-400">Prev</span>
+          <% } %>
+
+          <span class="text-xs text-gray-600">Page <span class="font-semibold text-gray-900"><%= currentPage %></span> / <span class="font-semibold text-gray-900"><%= pages %></span></span>
+
+          <% if (currentPage < pages) { %>
+            <a href="<%= buildPageUrl(currentPage + 1) %>" class="rounded-lg border border-rose-100 bg-white hover:bg-rose-50 px-3 py-1.5 text-xs font-semibold text-gray-800">Next</a>
+          <% } else { %>
+            <span class="rounded-lg border border-rose-100 bg-white px-3 py-1.5 text-xs font-semibold text-gray-400">Next</span>
+          <% } %>
+        </div>
+      <% } %>
     </div>
   </div>
 

@@ -1,29 +1,29 @@
 <section class="mb-6">
   <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
     <div>
-      <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Game Management</h1>
-      <p class="text-sm text-gray-600">Tambah, edit, hide/unhide, atau hapus game.</p>
+      <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Manajemen Produk</h1>
+      <p class="text-sm text-gray-600">Tambah, edit, tampil/sembunyikan, atau hapus produk.</p>
     </div>
 
     <div class="flex flex-col sm:flex-row sm:items-center gap-3 min-w-0">
-      <form method="GET" action="/admin/games" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+      <form method="GET" action="/admin/products" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
         <input
           type="text"
           name="q"
           value="<%= typeof q !== 'undefined' ? q : '' %>"
-          placeholder="Cari nama/slug game..."
-          class="w-full sm:w-80 md:w-96 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="Cari nama/slug produk..."
+          class="w-full sm:w-80 md:w-96 rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
         />
         <div class="flex items-center gap-2">
-          <button class="w-full sm:w-auto rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-800">Search</button>
+          <button class="w-full sm:w-auto rounded-xl border border-rose-100 bg-white hover:bg-rose-50 px-3 py-2 text-sm font-semibold text-gray-800">Search</button>
           <% if (typeof q !== 'undefined' && q) { %>
-            <a href="/admin/games" class="text-sm text-indigo-700 hover:underline">Reset</a>
+            <a href="/admin/products" class="text-sm text-rose-700 hover:underline">Reset</a>
           <% } %>
         </div>
       </form>
 
-      <button type="button" id="openCreateGame" class="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-semibold whitespace-nowrap">
-        + Tambah Game
+      <button type="button" id="openCreateGame" class="rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 text-sm font-semibold whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300">
+        + Tambah Produk
       </button>
     </div>
   </div>
@@ -43,29 +43,29 @@
 <section class="grid grid-cols-1 gap-6">
   <!-- Table -->
   <div>
-    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full min-w-[1180px] text-sm">
-          <thead class="bg-gray-50 border-b border-gray-200 text-gray-700">
-            <tr>
-              <th class="text-left px-4 py-3 font-semibold">Nama</th>
-              <th class="text-left px-4 py-3 font-semibold">Slug</th>
-              <th class="text-left px-4 py-3 font-semibold">Genres</th>
-              <th class="text-left px-4 py-3 font-semibold">Voucher Packages</th>
-              <th class="text-left px-4 py-3 font-semibold">Aktif</th>
-              <th class="text-left px-4 py-3 font-semibold">Aksi</th>
-            </tr>
+      <div class="rounded-2xl border border-rose-100 bg-white shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[1180px] text-sm">
+            <thead class="bg-rose-50 border-b border-rose-100 text-gray-700">
+              <tr>
+                <th class="text-left px-4 py-3 font-semibold">Nama</th>
+                <th class="text-left px-4 py-3 font-semibold">Slug</th>
+                <th class="text-left px-4 py-3 font-semibold">Kategori</th>
+                <th class="text-left px-4 py-3 font-semibold">Varian Produk</th>
+                <th class="text-left px-4 py-3 font-semibold">Aktif</th>
+                <th class="text-left px-4 py-3 font-semibold">Aksi</th>
+              </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
+          <tbody class="divide-y divide-rose-100">
             <% if (!games || !games.length) { %>
               <tr>
-                <td colspan="6" class="px-4 py-10 text-center text-gray-500">Belum ada game.</td>
+              <td colspan="6" class="px-4 py-10 text-center text-gray-500">Belum ada produk.</td>
               </tr>
             <% } %>
 
             <% (games || []).forEach(g => { %>
               <% const hasPackages = !!(g.VoucherPackages && g.VoucherPackages.length); %>
-              <tr class="hover:bg-gray-50 align-top <%= hasPackages ? '' : 'bg-amber-50/60' %>">
+              <tr class="hover:bg-rose-50/60 align-top <%= hasPackages ? '' : 'bg-amber-50/60' %>">
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-3">
                     <% if (g.thumbnailUrl) { %>
@@ -77,7 +77,7 @@
                       <div class="flex items-center gap-2">
                         <p class="font-semibold text-gray-900"><%= g.name %></p>
                         <% if (!hasPackages) { %>
-                          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold border border-amber-200 bg-amber-50 text-amber-800">No package</span>
+                          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold border border-amber-200 bg-amber-50 text-amber-800">Belum ada varian</span>
                         <% } %>
                       </div>
                       <p class="text-xs text-gray-500 truncate">#<%= g.id %></p>
@@ -94,36 +94,36 @@
                     <div class="space-y-1">
                       <% if (g.VoucherPackages && g.VoucherPackages.length) { %>
                         <% g.VoucherPackages.forEach(v => { %>
-                          <div class="flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                          <div class="flex items-center justify-between gap-2 rounded-lg border border-rose-300 bg-white px-3 py-2 shadow-md ring-1 ring-rose-100">
                             <div class="min-w-0">
                               <p class="text-sm font-semibold text-gray-900 truncate"><%= v.name %></p>
-                              <p class="text-xs text-gray-500">Denom: <%= v.denomination %> • Rp <%= v.price %></p>
+                              <p class="text-xs text-gray-500">Ukuran/Isi: <%= v.denomination %> • Rp <%= v.price %></p>
                             </div>
-                            <form method="POST" action="/admin/vouchers/<%= v.id %>/delete" onsubmit="return confirm('Hapus voucher package ini?')">
+                            <form method="POST" action="/admin/variants/<%= v.id %>/delete" onsubmit="return confirm('Hapus varian ini?')">
                               <button class="rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-1.5 text-xs font-semibold">Delete</button>
                             </form>
                           </div>
                         <% }) %>
                       <% } else { %>
-                        <p class="text-xs text-gray-500">Belum ada voucher package.</p>
+                        <p class="text-xs text-gray-500">Belum ada varian.</p>
                       <% } %>
                     </div>
 
-                    <button type="button" class="openAddVoucher rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-800"
+                    <button type="button" class="openAddVoucher rounded-xl border border-rose-100 bg-white hover:bg-rose-50 px-3 py-2 text-xs font-semibold text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300"
                       data-game-id="<%= g.id %>" data-game-name="<%= g.name %>">
-                      + Tambah Paket
+                      + Tambah Varian
                     </button>
                   </div>
                 </td>
 
                 <td class="px-4 py-3">
-                  <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border <%= g.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-700 border-gray-200' %>">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border <%= g.isActive ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200' %>">
                     <%= g.isActive ? 'active' : 'hidden' %>
                   </span>
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex flex-col gap-2 min-w-[220px]">
-                    <button type="button" class="editBtn rounded-xl border border-gray-200 bg-white hover:bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-800"
+                    <button type="button" class="editBtn rounded-xl border border-rose-100 bg-white hover:bg-rose-50 px-3 py-2 text-xs font-semibold text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300"
                       data-id="<%= g.id %>"
                       data-name="<%= g.name %>"
                       data-slug="<%= g.slug %>"
@@ -134,13 +134,13 @@
                       Edit
                     </button>
 
-                    <form method="POST" action="/admin/games/<%= g.id %>/toggle" onsubmit="return confirm('Ubah visibility game ini?')">
+                    <form method="POST" action="/admin/products/<%= g.id %>/toggle" onsubmit="return confirm('Ubah visibilitas produk ini?')">
                       <button class="w-full rounded-xl <%= g.isActive ? 'bg-amber-600 hover:bg-amber-700' : 'bg-emerald-600 hover:bg-emerald-700' %> text-white px-3 py-2 text-xs font-semibold">
-                        <%= g.isActive ? 'Hide' : 'Unhide' %>
+                        <%= g.isActive ? 'Sembunyikan' : 'Tampilkan' %>
                       </button>
                     </form>
 
-                    <form method="POST" action="/admin/games/<%= g.id %>/delete" onsubmit="return confirm('Hapus permanen game ini?')">
+                    <form method="POST" action="/admin/products/<%= g.id %>/delete" onsubmit="return confirm('Hapus permanen produk ini?')">
                       <button class="w-full rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 text-xs font-semibold">Delete</button>
                     </form>
                   </div>
@@ -159,48 +159,48 @@
 <!-- Create modal -->
 <div id="createModal" class="fixed inset-0 z-[9998] hidden">
   <div id="createBackdrop" class="absolute inset-0 bg-black/30"></div>
-  <div class="absolute inset-x-0 top-10 sm:top-16 mx-auto w-[94%] max-w-xl rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+    <div class="absolute inset-x-0 top-10 sm:top-16 mx-auto w-[94%] max-w-xl rounded-2xl border border-rose-100 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-rose-100 bg-rose-50">
       <div>
-        <p class="text-sm font-semibold text-gray-900">Tambah Game</p>
+        <p class="text-sm font-semibold text-gray-900">Tambah Produk</p>
         <p class="text-xs text-gray-500">Field wajib: name, slug.</p>
       </div>
       <button type="button" id="createClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
     </div>
 
-    <form method="POST" action="/admin/games" class="p-4 space-y-3" enctype="multipart/form-data">
+    <form method="POST" action="/admin/products" class="p-4 space-y-3" enctype="multipart/form-data">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Nama</label>
-          <input name="name" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="Nama game" required />
+          <input name="name" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" placeholder="Nama produk" required />
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Slug</label>
-          <input name="slug" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="contoh: mlbb" required />
+          <input name="slug" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" placeholder="contoh: hydrating-serum" required />
         </div>
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-700 mb-1">Thumbnail (Upload)</label>
-        <input type="file" name="thumbnailFile" accept="image/*" class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-gray-200 file:bg-white hover:file:bg-gray-50" />
+        <input type="file" name="thumbnailFile" accept="image/*" class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-rose-100 file:bg-white hover:file:bg-rose-50" />
         <p class="mt-1 text-xs text-gray-500">Opsional. JPG/PNG/WebP, maks 3MB. Jika di-upload, akan override Thumbnail URL.</p>
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-700 mb-1">Thumbnail URL (Opsional)</label>
-        <input name="thumbnailUrl" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="https://..." />
+        <input name="thumbnailUrl" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" placeholder="https://..." />
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-700 mb-1">Deskripsi</label>
-        <textarea name="description" rows="3" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="Deskripsi singkat..."></textarea>
+        <textarea name="description" rows="3" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" placeholder="Deskripsi singkat..."></textarea>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-2">Genres</label>
+        <label class="block text-xs font-semibold text-gray-700 mb-2">Kategori</label>
         <div class="max-h-44 overflow-auto rounded-xl border border-gray-200 bg-white p-2 space-y-2">
           <% if (!genres || !genres.length) { %>
-            <p class="text-xs text-gray-500">Belum ada genre. Tambahkan via API <code>/api/genres</code> (admin).</p>
+            <p class="text-xs text-gray-500">Belum ada kategori. Tambahkan via API <code>/api/categories</code> (admin).</p>
           <% } %>
           <% (genres || []).forEach(ge => { %>
             <label class="flex items-center gap-2 text-sm text-gray-700">
@@ -218,10 +218,10 @@
           <input type="checkbox" name="isActive" value="true" class="rounded border-gray-300" checked />
           <span>Aktif (tampil di user)</span>
         </label>
-        <p class="mt-1 text-xs text-gray-500">Jika nonaktif, game disembunyikan dari halaman user tapi masih tersimpan.</p>
+        <p class="mt-1 text-xs text-gray-500">Jika nonaktif, produk disembunyikan dari halaman user tapi masih tersimpan.</p>
       </div>
 
-      <button class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 font-semibold">Simpan</button>
+      <button class="w-full rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 font-semibold">Simpan</button>
     </form>
   </div>
 </div>
@@ -229,10 +229,10 @@
 <!-- Add voucher modal -->
 <div id="voucherModal" class="fixed inset-0 z-[9998] hidden">
   <div id="voucherBackdrop" class="absolute inset-0 bg-black/30"></div>
-  <div class="absolute inset-x-0 top-12 sm:top-16 mx-auto w-[94%] max-w-lg rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+    <div class="absolute inset-x-0 top-12 sm:top-16 mx-auto w-[94%] max-w-lg rounded-2xl border border-rose-100 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-rose-100 bg-rose-50">
       <div class="min-w-0">
-        <p class="text-sm font-semibold text-gray-900">Tambah Voucher Package</p>
+        <p class="text-sm font-semibold text-gray-900">Tambah Varian Produk</p>
         <p id="voucherSub" class="text-xs text-gray-500 truncate">-</p>
       </div>
       <button type="button" id="voucherClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
@@ -240,20 +240,20 @@
 
     <form id="voucherForm" method="POST" class="p-4 space-y-3">
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Paket</label>
-        <input name="name" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="contoh: Diamonds 86" required />
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Varian</label>
+        <input name="name" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" placeholder="contoh: Hydrating Serum 30ml" required />
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Denomination</label>
-          <input name="denomination" inputmode="numeric" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="86" required />
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Ukuran/Isi</label>
+          <input name="denomination" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" placeholder="30ml / 50gr" required />
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Price</label>
-          <input name="price" inputmode="numeric" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" placeholder="20000" required />
+          <input name="price" inputmode="numeric" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" placeholder="20000" required />
         </div>
       </div>
-      <button class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 font-semibold">Simpan Paket</button>
+      <button class="w-full rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 font-semibold">Simpan Varian</button>
     </form>
   </div>
 </div>
@@ -261,10 +261,10 @@
 <!-- Edit modal -->
 <div id="editModal" class="fixed inset-0 z-[9998] hidden">
   <div id="editBackdrop" class="absolute inset-0 bg-black/30"></div>
-  <div class="absolute inset-x-0 top-12 sm:top-16 mx-auto w-[94%] max-w-xl rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
-    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+    <div class="absolute inset-x-0 top-12 sm:top-16 mx-auto w-[94%] max-w-xl rounded-2xl border border-rose-100 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-rose-100 bg-rose-50">
       <div class="min-w-0">
-        <p class="text-sm font-semibold text-gray-900">Edit Game</p>
+        <p class="text-sm font-semibold text-gray-900">Edit Produk</p>
         <p id="editSub" class="text-xs text-gray-500 truncate">-</p>
       </div>
       <button type="button" id="editClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
@@ -274,32 +274,32 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Nama</label>
-          <input name="name" id="editName" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" required />
+          <input name="name" id="editName" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" required />
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-700 mb-1">Slug</label>
-          <input name="slug" id="editSlug" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" required />
+          <input name="slug" id="editSlug" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" required />
         </div>
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-700 mb-1">Thumbnail (Upload)</label>
-        <input type="file" name="thumbnailFile" accept="image/*" class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-gray-200 file:bg-white hover:file:bg-gray-50" />
+        <input type="file" name="thumbnailFile" accept="image/*" class="block w-full text-sm text-gray-700 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-rose-100 file:bg-white hover:file:bg-rose-50" />
         <p class="mt-1 text-xs text-gray-500">Jika di-upload, akan mengganti thumbnail sebelumnya.</p>
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-700 mb-1">Thumbnail URL (Opsional)</label>
-        <input name="thumbnailUrl" id="editThumb" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm" />
+        <input name="thumbnailUrl" id="editThumb" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm" />
       </div>
 
       <div>
         <label class="block text-xs font-semibold text-gray-700 mb-1">Deskripsi</label>
-        <textarea name="description" id="editDesc" rows="3" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm"></textarea>
+        <textarea name="description" id="editDesc" rows="3" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm"></textarea>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-2">Genres</label>
+        <label class="block text-xs font-semibold text-gray-700 mb-2">Kategori</label>
         <div class="max-h-44 overflow-auto rounded-xl border border-gray-200 bg-white p-2 space-y-2">
           <% (genres || []).forEach(ge => { %>
             <label class="flex items-center gap-2 text-sm text-gray-700">
@@ -318,7 +318,7 @@
         <input type="hidden" name="isActive" id="editActiveHidden" value="true" />
       </div>
 
-      <button class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 font-semibold">Update</button>
+      <button class="w-full rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 font-semibold">Update</button>
     </form>
   </div>
 </div>
@@ -360,8 +360,8 @@
   const voucherSub = document.getElementById('voucherSub');
 
   function openVoucherModal(gameId, gameName){
-    voucherForm.setAttribute('action', `/admin/games/${gameId}/vouchers`);
-    voucherSub.textContent = `Game: ${gameName} (#${gameId})`;
+    voucherForm.setAttribute('action', `/admin/products/${gameId}/variants`);
+    voucherSub.textContent = `Produk: ${gameName} (#${gameId})`;
     voucherModal.classList.remove('hidden');
     lockBody(true);
     voucherForm.reset();
@@ -398,7 +398,7 @@
   function openModal(payload){
     if (!modal) return;
 
-    form.setAttribute('action', `/admin/games/${payload.id}`);
+    form.setAttribute('action', `/admin/products/${payload.id}`);
     nameEl.value = payload.name || '';
     slugEl.value = payload.slug || '';
     thumbEl.value = payload.thumb || '';

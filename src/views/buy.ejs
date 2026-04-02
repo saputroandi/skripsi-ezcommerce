@@ -1,117 +1,256 @@
-<div class="flex flex-col gap-6">
-  <div>
-    <div class="rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm">
-      <% if (game.thumbnailUrl) { %>
-        <img src="<%= game.thumbnailUrl %>" alt="<%= game.name %>" class="w-full h-56 md:h-64 object-cover" />
-      <% } else { %>
-        <div class="w-full h-56 md:h-64 bg-gray-100"></div>
-      <% } %>
-      <div class="p-5">
-        <p class="text-xs font-semibold text-indigo-700">Detail Produk</p>
-        <h1 class="text-3xl font-extrabold tracking-tight text-gray-900">Beli Voucher <%= game.name %></h1>
-        <p class="text-sm text-gray-600 mt-1">Masukkan UID dan pilih paket, lalu checkout.</p>
+<% 
+  const variants = game.VoucherPackages || [];
+  const prices = variants.map(v => Number(v.price)).filter(n => Number.isFinite(n));
+  const minPrice = prices.length ? Math.min(...prices) : null;
+  const maxPrice = prices.length ? Math.max(...prices) : null;
+  const getVariantLabel = (v) => {
+    const name = String(v?.name || '');
+    const unitMatch = name.match(/(\d+)\s?(ml|gr)/i);
+    if (unitMatch) return `${unitMatch[1]}${unitMatch[2].toLowerCase()}`;
+    const shadeMatch = name.match(/\b(rose|nude|peach|pink|coral)\b/i);
+    if (shadeMatch) return shadeMatch[1].toLowerCase();
+    if (v?.denomination) return String(v.denomination);
+    return name.replace(String(game.name || '').trim(), '').trim() || name;
+  };
 
-        <% if (game.Genres && game.Genres.length) { %>
-          <div class="mt-3 flex flex-wrap gap-2">
-            <% game.Genres.forEach(ge => { %>
-              <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-700"><%= ge.name %></span>
+  const defaultVariant = variants[0];
+  const defaultPrice = defaultVariant ? Number(defaultVariant.price) : null;
+  const defaultVariantLabel = defaultVariant ? getVariantLabel(defaultVariant) : '';
+%>
+
+<div class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6">
+  <section class="space-y-4">
+    <div class="rounded-2xl overflow-hidden border border-rose-100 bg-white shadow-sm">
+      <% if (game.thumbnailUrl) { %>
+        <img src="<%= game.thumbnailUrl %>" alt="<%= game.name %>" class="w-full h-64 md:h-80 object-cover" />
+      <% } else { %>
+        <div class="w-full h-64 md:h-80 bg-rose-50"></div>
+      <% } %>
+    </div>
+
+    <div class="rounded-2xl border border-rose-100 bg-white p-4 sm:p-5 shadow-sm">
+      <div class="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs font-semibold text-rose-700">
+        <span class="inline-flex items-center rounded-full border border-rose-100 bg-rose-50 px-2 py-1">Reseller Terverifikasi</span>
+        <span class="inline-flex items-center rounded-full border border-rose-100 bg-rose-50 px-2 py-1">Produk Original</span>
+        <span class="inline-flex items-center rounded-full border border-rose-100 bg-rose-50 px-2 py-1">Pengiriman Cepat</span>
+      </div>
+
+      <h1 class="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900"><%= game.name %></h1>
+      <p class="mt-2 text-sm text-gray-600">
+        <%= game.description ? game.description : 'Formulasi lembut untuk perawatan harian. Cocok untuk rutinitas pagi dan malam.' %>
+      </p>
+
+      <div class="mt-4 flex flex-wrap items-center gap-3 sm:gap-4">
+        <div class="flex items-center gap-2">
+          <div class="flex text-rose-500" aria-label="Rating 4.9">
+            ★★★★★
+          </div>
+          <span class="text-xs sm:text-sm text-gray-600">4.9 (1.2k review)</span>
+        </div>
+        <span class="text-xs sm:text-sm text-gray-500">100% guarantee • Free konsultasi</span>
+      </div>
+
+      <div class="mt-5 flex flex-col items-start gap-2 sm:flex-row sm:items-end sm:gap-3">
+        <% if (defaultPrice !== null) { %>
+          <div class="text-2xl sm:text-2xl font-bold text-gray-900">
+            Rp <span id="priceLabel"><%= defaultPrice.toLocaleString('id-ID') %></span>
+            <% if (minPrice !== null && maxPrice !== null && maxPrice !== minPrice) { %>
+              <span class="text-sm sm:text-base font-semibold text-gray-500"> • variasi tersedia</span>
+            <% } %>
+          </div>
+        <% } else { %>
+          <div class="text-2xl font-bold text-gray-900">Harga menyesuaikan varian</div>
+        <% } %>
+        <span class="text-xs sm:text-sm text-emerald-600 font-semibold">Ready Stock</span>
+      </div>
+      <p class="mt-1 text-xs text-gray-500">Total menyesuaikan jumlah.</p>
+
+      <% if (game.Genres && game.Genres.length) { %>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <% game.Genres.forEach(ge => { %>
+            <span class="inline-flex items-center rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700"><%= ge.name %></span>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </section>
+
+  <aside class="space-y-4">
+    <div class="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm">
+      <p class="text-sm font-semibold text-gray-900">Pilih varian & checkout</p>
+      <p class="text-xs text-gray-500 mt-1">Pilih ukuran atau varian, lalu checkout dengan aman.</p>
+
+      <form id="orderForm" class="mt-4 space-y-4" data-game-id="<%= game.id %>" data-game-name="<%= game.name %>">
+        <div>
+          <label class="block mb-2 text-sm font-semibold text-gray-800">Pilih Varian</label>
+          <input type="hidden" name="voucherPackageId" id="variantInput" value="<%= defaultVariant?.id || '' %>" />
+          <input type="hidden" name="uid" id="uidInput" value="<%= [game.name, defaultVariantLabel].filter(Boolean).join(' ') %>" />
+          <div class="flex flex-wrap gap-2">
+            <% variants.forEach((v, idx) => { %>
+              <button
+                type="button"
+                class="variantBtn rounded-full border border-rose-100 bg-white px-3 py-2 text-xs font-semibold text-gray-800 hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 <%= idx === 0 ? 'bg-rose-100 text-rose-800 border-rose-300' : '' %>"
+                data-id="<%= v.id %>"
+                data-price="<%= Number(v.price) || 0 %>"
+                data-label="<%= getVariantLabel(v) %>">
+                <%= getVariantLabel(v) %>
+              </button>
             <% }) %>
           </div>
-        <% } %>
-      </div>
-    </div>
-  </div>
-
-  <div>
-    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <form id="orderForm" class="space-y-4" data-game-id="<%= game.id %>">
-        <div>
-          <label class="block mb-1 text-sm font-semibold text-gray-800">UID Game</label>
-          <input name="uid" class="w-full bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400" placeholder="Contoh: 123456789" required />
-          <p class="mt-1 text-xs text-gray-500">Pastikan UID sesuai akun game kamu.</p>
         </div>
 
         <div>
-          <label class="block mb-1 text-sm font-semibold text-gray-800">Pilih Paket</label>
-          <select name="voucherPackageId" class="w-full bg-white text-gray-900 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400">
-            <% game.VoucherPackages.forEach(v => { %>
-              <option value="<%= v.id %>"><%= v.name %> - Rp <%= v.price %></option>
-            <% }) %>
-          </select>
+          <label class="block mb-2 text-sm font-semibold text-gray-800">Jumlah</label>
+          <div class="flex items-center gap-2">
+            <button type="button" id="qtyMinus" class="h-10 w-10 rounded-xl border border-rose-100 bg-white text-gray-700 hover:bg-rose-50" aria-label="Kurangi jumlah">-</button>
+            <input
+              id="qtyInput"
+              name="quantity"
+              type="text"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              value="1"
+              class="w-16 text-center rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-rose-300"
+              readonly
+              aria-readonly="true"
+            />
+            <button type="button" id="qtyPlus" class="h-10 w-10 rounded-xl border border-rose-100 bg-white text-gray-700 hover:bg-rose-50" aria-label="Tambah jumlah">+</button>
+          </div>
         </div>
 
-        <div>
-          <label class="block mb-1 text-sm font-semibold text-gray-800">Nomor WhatsApp</label>
-          <input name="whatsapp" inputmode="tel" class="w-full bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400" placeholder="Contoh: 628123456789" required />
-          <p class="mt-1 text-xs text-gray-500">Gunakan format internasional (awali 62), contoh: 62812xxxx.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <button id="buyNowBtn" type="button" class="w-full bg-rose-600 hover:bg-rose-700 text-white px-5 py-3 rounded-xl font-semibold shadow-sm">
+            Beli Sekarang
+          </button>
+          <button id="addToCartBtn" type="button" class="w-full rounded-xl border border-rose-200 bg-white hover:bg-rose-50 px-5 py-3 text-sm font-semibold text-gray-800">
+            Tambah Keranjang
+          </button>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-          <button id="checkoutBtn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-semibold">Checkout</button>
+        <div class="flex items-center gap-3 text-xs text-gray-500">
+          <span class="inline-flex items-center rounded-full border border-rose-100 bg-rose-50 px-2 py-1 text-rose-700">Gratis konsultasi</span>
+          <span>Garansi pengiriman</span>
         </div>
       </form>
     </div>
-  </div>
+
+    <div class="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm">
+      <p class="text-sm font-semibold text-gray-900">Kenapa beli di EzBeauty?</p>
+      <ul class="mt-3 space-y-2 text-sm text-gray-600">
+        <li>✅ Produk asli dan tersegel</li>
+        <li>✅ Packing aman & rapi</li>
+        <li>✅ Respon cepat via WhatsApp</li>
+        <li>✅ Promo rutin untuk reseller</li>
+      </ul>
+    </div>
+  </aside>
 </div>
 
 <script>
 const form = document.getElementById('orderForm');
-const checkoutBtn = document.getElementById('checkoutBtn');
+const buyNowBtn = document.getElementById('buyNowBtn');
+const addToCartBtn = document.getElementById('addToCartBtn');
+const variantInput = document.getElementById('variantInput');
+const uidInput = document.getElementById('uidInput');
+const variantButtons = Array.from(document.querySelectorAll('.variantBtn'));
+const priceLabel = document.getElementById('priceLabel');
+const qtyInput = document.getElementById('qtyInput');
+const qtyMinus = document.getElementById('qtyMinus');
+const qtyPlus = document.getElementById('qtyPlus');
+let currentUnitPrice = Number(variantButtons[0]?.getAttribute('data-price')) || 0;
 
-form.addEventListener('submit', async (e)=>{
-  e.preventDefault();
+function clampQty(val){
+  const n = parseInt(val, 10);
+  if (!Number.isFinite(n) || n < 1) return 1;
+  return Math.min(n, 999);
+}
 
+function updateTotal(){
+  const qty = clampQty(qtyInput?.value || 1);
+  if (qtyInput) qtyInput.value = String(qty);
+  if (priceLabel && Number.isFinite(currentUnitPrice)) {
+    priceLabel.textContent = Math.round(currentUnitPrice * qty).toLocaleString('id-ID');
+  }
+}
+
+if (variantButtons.length && variantInput) {
+  variantButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      variantButtons.forEach((b) => b.classList.remove('bg-rose-100','text-rose-800','border-rose-300'));
+      btn.classList.add('bg-rose-100','text-rose-800','border-rose-300');
+      variantInput.value = btn.getAttribute('data-id') || '';
+      const productName = form?.getAttribute('data-game-name') || '';
+      const variantLabel = btn.getAttribute('data-label') || '';
+      if (uidInput) uidInput.value = [productName, variantLabel].filter(Boolean).join(' ');
+      currentUnitPrice = Number(btn.getAttribute('data-price')) || 0;
+      updateTotal();
+    });
+  });
+}
+
+qtyMinus?.addEventListener('click', () => {
+  const next = clampQty((parseInt(qtyInput?.value || '1', 10) || 1) - 1);
+  if (qtyInput) qtyInput.value = String(next);
+  updateTotal();
+});
+
+qtyPlus?.addEventListener('click', () => {
+  const next = clampQty((parseInt(qtyInput?.value || '1', 10) || 1) + 1);
+  if (qtyInput) qtyInput.value = String(next);
+  updateTotal();
+});
+
+updateTotal();
+
+async function addToCart(){
   const token = localStorage.getItem('token');
   if (!token) {
-    if (window.showToast) window.showToast('Silakan login terlebih dulu sebelum checkout.', 'error');
+    if (window.showToast) window.showToast('Silakan login untuk melanjutkan.', 'info');
+    const redirect = encodeURIComponent(location.pathname + location.search);
+    window.location.href = `/login?redirect=${redirect}`;
     return;
   }
-
-  checkoutBtn.disabled = true;
-  checkoutBtn.classList.add('opacity-60','cursor-not-allowed');
-
-  const fd = new FormData(form);
-  const body = {
-    uid: fd.get('uid'),
-    whatsapp: String(fd.get('whatsapp') || '').trim(),
-    voucherPackageId: fd.get('voucherPackageId')
-  };
-
   try {
-    const res = await fetch('/api/orders', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Authorization': 'Bearer '+token },
-      body: JSON.stringify(body)
+    const res = await fetch('/api/cart/items', {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        voucherPackageId: Number(variantInput?.value),
+        quantity: clampQty(qtyInput?.value || 1)
+      })
     });
-    const data = await res.json();
-
-    if (res.ok && data && data.id) {
-      const trx = data.transactionCode ? ` (${data.transactionCode})` : '';
-      window.showToast?.(`Transaksi berhasil dibuat${trx}.`, 'success');
-
-      // Redirect to payment instructions after checkout
-      setTimeout(() => {
-        window.location.href = `/payment/bca?orderId=${encodeURIComponent(data.id)}`;
-      }, 300);
-
-      // Clear inputs after successful checkout
-      form.reset();
-
-      // Keep default package selected (first option) after reset for consistent UX
-      const packageSelect = form.querySelector('select[name="voucherPackageId"]');
-      if (packageSelect && packageSelect.options.length) packageSelect.selectedIndex = 0;
-
-      // Put cursor back for quick next order
-      const uidInput = form.querySelector('input[name="uid"]');
-      uidInput?.focus();
-    } else {
-      window.showToast?.(data?.message || 'Terjadi error saat membuat order.', 'error');
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok) {
+      if (window.showToast) window.showToast(data?.message || 'Gagal menambahkan ke keranjang.', 'error');
+      return;
     }
-  } catch (err) {
-    window.showToast?.('Terjadi error saat membuat order.', 'error');
-  } finally {
-    checkoutBtn.disabled = false;
-    checkoutBtn.classList.remove('opacity-60','cursor-not-allowed');
+    if (window.showToast) window.showToast('Produk ditambahkan ke keranjang.', 'success');
+    if (typeof window.refreshCartBadge === 'function') window.refreshCartBadge();
+  } catch {
+    if (window.showToast) window.showToast('Gagal menambahkan ke keranjang.', 'error');
   }
-});
+}
+
+function goDirectCheckout(){
+  const token = localStorage.getItem('token');
+  if (!token) {
+    if (window.showToast) window.showToast('Silakan login untuk melanjutkan.', 'info');
+    const redirect = encodeURIComponent(location.pathname + location.search);
+    window.location.href = `/login?redirect=${redirect}`;
+    return;
+  }
+  const params = new URLSearchParams({
+    direct: '1',
+    voucherPackageId: String(Number(variantInput?.value)),
+    quantity: String(clampQty(qtyInput?.value || 1)),
+    uid: String(uidInput?.value || '').trim()
+  });
+  window.location.href = `/checkout?${params.toString()}`;
+}
+
+buyNowBtn?.addEventListener('click', goDirectCheckout);
+addToCartBtn?.addEventListener('click', addToCart);
 </script>

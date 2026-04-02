@@ -34,5 +34,7 @@ router.post('/register', validate(registerSchema), ctrl.register);
 router.post('/login', validate(loginSchema), ctrl.login);
 
 router.get('/me', auth(), ctrl.me);
+router.get('/google', ctrl.googleStart);
+router.get('/google/callback', ctrl.googleCallback);
 
 module.exports = router;

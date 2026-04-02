@@ -3,10 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= typeof title !== 'undefined' ? title : 'EzCommerce' %></title>
+  <title><%= typeof title !== 'undefined' ? title : 'EzBeauty' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --brand-rose: #f43f5e;
+      --brand-rose-soft: #fff1f2;
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+    }
+    h1, h2, h3 {
+      font-family: 'Playfair Display', 'Inter', serif;
+      letter-spacing: -0.01em;
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col bg-gray-50 text-gray-900">
+  <body class="min-h-screen flex flex-col bg-rose-50/60 text-gray-900">
 
   <!-- Toast container -->
   <div id="toastHost" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2"></div>
@@ -15,36 +31,51 @@
     <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0">
         <a href="/" class="font-extrabold tracking-tight text-lg shrink-0">
-          <span class="text-gray-900">Ez</span><span class="text-indigo-600">Commerce</span>
+          <span class="text-gray-900">Ez</span><span class="text-rose-600">Beauty</span>
         </a>
-        <span class="hidden sm:inline-flex text-xs px-2 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700">Top-up Game</span>
+        <span class="hidden sm:inline-flex text-xs px-2 py-1 rounded-full bg-rose-50 border border-rose-100 text-rose-700">Skincare & Beauty</span>
       </div>
 
       <!-- Desktop nav/actions -->
       <div class="hidden md:flex items-center gap-3" id="authBox">
-        <a href="/games" class="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Games</a>
-        <a href="/payment/bca" class="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Cara Bayar BCA</a>
-        <a href="/orders" id="ordersLink" class="hidden text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Transaksi</a>
+        <a href="/products" class="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-rose-50">Produk</a>
+        <a href="/payment/bca" class="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-rose-50">Panduan Pembayaran</a>
+        <a href="/cart" id="cartLink" class="hidden relative text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-rose-50">
+          Keranjang
+          <span id="cartBadge" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-semibold flex items-center justify-center">0</span>
+        </a>
         <a href="/admin/dashboard" id="adminLink" class="hidden text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Admin</a>
-        <a href="/admin/games" id="adminGamesLink" class="hidden text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Kelola Game</a>
+        <a href="/admin/products" id="adminGamesLink" class="hidden text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-rose-50">Kelola Produk</a>
 
-        <!-- Desktop-only login form -->
-        <form id="loginForm" class="hidden md:flex items-center gap-2 text-sm">
-          <input name="email" placeholder="email" class="w-44 bg-white text-gray-900 placeholder:text-gray-400 border border-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
-          <input name="password" type="password" placeholder="password" class="w-36 bg-white text-gray-900 placeholder:text-gray-400 border border-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
-          <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg">Login</button>
-        </form>
+        <a
+          href="/login"
+          id="loginPageBtn"
+          class="hidden md:inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50/60 hover:bg-rose-100/70 px-4 py-2 text-sm font-semibold text-rose-700 shadow-sm">
+          Masuk
+        </a>
 
-        <span id="userEmail" class="text-sm font-semibold hidden px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-800"></span>
-        <button type="button" id="logoutBtn" class="hidden bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 px-3 py-2 rounded-lg">Logout</button>
+        <div id="userMenuWrap" class="relative hidden">
+          <button type="button" id="userMenuBtn" class="flex items-center gap-2 rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-rose-50" aria-haspopup="true" aria-expanded="false">
+            <span id="userEmail" class="max-w-[180px] truncate">-</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="text-gray-500">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div id="userMenu" class="absolute right-0 mt-2 w-52 rounded-xl border border-rose-100 bg-white shadow-lg hidden">
+            <a href="/profile" id="profileLink" class="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50">Alamat</a>
+            <a href="/orders" id="ordersLink" class="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50">Transaksi</a>
+            <div class="border-t border-rose-100 my-1"></div>
+            <button type="button" id="logoutBtn" class="w-full text-left px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50">Logout</button>
+          </div>
+        </div>
       </div>
 
       <!-- Mobile actions (no overflow) -->
       <div class="md:hidden flex items-center gap-2">
-        <button type="button" id="mobileLoginBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm font-semibold">
+        <a href="/login" id="mobileLoginBtn" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-sm font-semibold">
           Login
-        </button>
-        <button type="button" id="mobileMenuBtn" class="inline-flex items-center justify-center h-10 w-10 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700" aria-label="Open menu" aria-expanded="false">
+        </a>
+        <button type="button" id="mobileMenuBtn" class="inline-flex items-center justify-center h-10 w-10 rounded-xl border border-rose-100 bg-white hover:bg-rose-50 text-gray-700" aria-label="Open menu" aria-expanded="false">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
@@ -55,13 +86,18 @@
     <!-- Mobile menu panel -->
     <div id="mobileMenu" class="md:hidden hidden border-t border-gray-200 bg-white">
       <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-2">
-        <a href="/games" class="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Games</a>
-        <a href="/payment/bca" class="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Cara Bayar BCA</a>
+        <a href="/products" class="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-rose-50">Produk</a>
+        <a href="/payment/bca" class="text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-rose-50">Panduan Pembayaran</a>
+        <a href="/cart" id="cartLinkMobile" class="hidden relative text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-rose-50">
+          Keranjang
+          <span id="cartBadgeMobile" class="hidden absolute top-1/2 -translate-y-1/2 right-3 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-semibold flex items-center justify-center">0</span>
+        </a>
+        <a href="/profile" id="profileLinkMobile" class="hidden text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-rose-50">Alamat</a>
         <a href="/orders" id="ordersLinkMobile" class="hidden text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Transaksi</a>
         <a href="/admin/dashboard" id="adminLinkMobile" class="hidden text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Admin</a>
-        <a href="/admin/games" id="adminGamesLinkMobile" class="hidden text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-50">Kelola Game</a>
+        <a href="/admin/products" id="adminGamesLinkMobile" class="hidden text-sm text-gray-700 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-rose-50">Kelola Produk</a>
 
-        <div class="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+        <div id="mobileUserRow" class="hidden items-center justify-between gap-3 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
           <span id="userEmailMobile" class="text-sm font-semibold text-gray-800 truncate">-</span>
           <button type="button" id="logoutBtnMobile" class="hidden bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 px-3 py-2 rounded-lg text-sm">Logout</button>
         </div>
@@ -69,91 +105,26 @@
     </div>
   </nav>
 
-  <!-- Mobile login modal -->
-  <div id="loginModal" class="fixed inset-0 z-[9998] hidden">
-    <div id="loginModalBackdrop" class="absolute inset-0 bg-black/30"></div>
-    <div class="absolute inset-x-0 top-20 mx-auto w-[92%] max-w-md rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
-        <div>
-          <p class="text-sm font-semibold text-gray-900">Login</p>
-          <p class="text-xs text-gray-500">Masuk untuk melihat transaksi dan checkout.</p>
-        </div>
-        <button type="button" id="loginModalClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
-      </div>
-
-      <form id="mobileLoginForm" class="p-4 space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
-          <input name="email" placeholder="email" class="w-full bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Password</label>
-          <input name="password" type="password" placeholder="password" class="w-full bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/40" />
-        </div>
-        <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold">Login</button>
-      </form>
-
-      <div class="px-4 pb-4 text-xs text-gray-500">
-        Akun test: <span class="font-mono">user1@example.com</span> / <span class="font-mono">User123!</span>
-      </div>
-    </div>
-  </div>
-
   <main class="relative max-w-6xl mx-auto px-4 flex-1 w-full py-8">
     <%- body %>
   </main>
 
-  <footer class="relative border-t border-gray-200 py-8 text-center text-sm text-gray-500 bg-white">
-    &copy; <%= new Date().getFullYear() %> EzCommerce
+  <footer class="relative border-t border-rose-100 py-8 text-center text-sm text-gray-500 bg-white">
+    &copy; <%= new Date().getFullYear() %> EzBeauty
   </footer>
 
-  <!-- Chat widget -->
-  <div id="chatWidget" class="fixed bottom-5 right-5 z-[9999] hidden">
-    <!-- Popover -->
-    <div id="chatPanel" class="hidden w-[340px] sm:w-[380px] max-h-[80vh] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl flex flex-col">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
-        <div class="flex items-center gap-2">
-          <div class="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold">EZ</div>
-          <div class="leading-tight">
-            <p class="text-sm font-semibold text-gray-900">EzCommerce Assistant</p>
-            <!-- <p class="text-xs text-gray-500">Demo</p> -->
-          </div>
-        </div>
-        <button id="chatCloseBtn" type="button" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
-      </div>
-
-      <div id="chatMessages" class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3 bg-white">
-        <div class="flex items-start gap-2">
-          <div class="h-8 w-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">EZ</div>
-          <div class="max-w-[260px] rounded-2xl rounded-tl-md border border-gray-200 bg-gray-50 px-3 py-2">
-            <p class="text-sm text-gray-800">Halo! Aku bisa bantu cara top up, cara bayar, atau cek status (pakai nomor transaksi TRX).</p>
-            <p class="mt-2 text-xs text-gray-500">Contoh: “cek trx TRX-20260114153045-1-3-9F2A”</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="px-4 pb-3 bg-white">
-        <div class="flex flex-wrap gap-2">
-          <button type="button" class="chatQuick text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700" data-q="Cara bayar?">Cara bayar?</button>
-          <button type="button" class="chatQuick text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700" data-q="Cara top up?">Cara top up?</button>
-          <button type="button" class="chatQuick text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700" data-q="Cek status transaksi saya">Cek status</button>
-        </div>
-      </div>
-
-      <form id="chatForm" class="flex items-center gap-2 px-4 py-3 border-t border-gray-200 bg-white">
-        <input id="chatInput" name="message" autocomplete="off" placeholder="Tulis pesan..."
-          class="flex-1 bg-white text-gray-900 placeholder:text-gray-400 border border-gray-300 px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400" />
-        <button class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold">Kirim</button>
-      </form>
-    </div>
-
-    <!-- Floating button -->
-    <button id="chatFab" type="button" class="h-14 w-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl flex items-center justify-center" aria-label="Open chat" title="Chat">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M4 5.5C4 4.119 5.119 3 6.5 3h11C18.881 3 20 4.119 20 5.5v7c0 1.381-1.119 2.5-2.5 2.5H10l-4.2 3.15c-.66.495-1.8.024-1.8-.8V15C4.895 15 4 14.105 4 13V5.5Z" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
-        <path d="M7 7.8h10M7 11h7" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+  <div class="fixed bottom-5 right-5 z-[9999]">
+    <a
+      href="https://wa.me/6281574832133?text=Hai%20kak%20mau%20tanya%20produk%20EzBeauty"
+      target="_blank"
+      rel="noopener"
+      class="h-14 w-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl flex items-center justify-center"
+      aria-label="Hubungi via WhatsApp"
+      title="Hubungi via WhatsApp">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12.04 2C6.55 2 2.08 6.47 2.08 11.96c0 1.93.54 3.81 1.57 5.45L2 22l4.71-1.62a9.9 9.9 0 0 0 5.33 1.55h.01c5.49 0 9.96-4.47 9.96-9.96a9.9 9.9 0 0 0-2.92-7.06A9.9 9.9 0 0 0 12.04 2zm5.73 14.15c-.24.68-1.4 1.29-1.93 1.36-.5.07-1.13.1-1.82-.12-.42-.13-.96-.31-1.66-.62-2.92-1.27-4.83-4.37-4.98-4.58-.15-.2-1.2-1.6-1.2-3.05 0-1.45.76-2.17 1.03-2.46.27-.29.59-.37.79-.37.2 0 .4 0 .58.01.18.01.43-.07.67.51.24.59.81 2.02.88 2.17.07.15.12.33.03.53-.09.2-.14.33-.29.5-.15.17-.31.38-.44.51-.15.15-.31.31-.13.62.18.31.82 1.36 1.76 2.2 1.21 1.07 2.23 1.4 2.54 1.56.31.16.49.13.67-.08.18-.21.77-.9.97-1.21.2-.31.41-.26.69-.16.28.1 1.78.84 2.09.99.31.15.52.23.6.36.08.13.08.74-.16 1.42z"/>
       </svg>
-    </button>
+    </a>
   </div>
 
   <script>
@@ -189,18 +160,20 @@
       };
     })();
 
-    const lf = document.getElementById('loginForm');
-    const mlf = document.getElementById('mobileLoginForm');
     const mobileLoginBtn = document.getElementById('mobileLoginBtn');
-    const loginModal = document.getElementById('loginModal');
-    const loginModalBackdrop = document.getElementById('loginModalBackdrop');
-    const loginModalClose = document.getElementById('loginModalClose');
+    const loginPageBtn = document.getElementById('loginPageBtn');
 
+    const userMenuWrap = document.getElementById('userMenuWrap');
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userMenu = document.getElementById('userMenu');
     const userEmailEl = document.getElementById('userEmail');
     const logoutBtn = document.getElementById('logoutBtn');
+    const cartLink = document.getElementById('cartLink');
+    const cartBadge = document.getElementById('cartBadge');
     const adminLink = document.getElementById('adminLink');
     const ordersLink = document.getElementById('ordersLink');
     const adminGamesLink = document.getElementById('adminGamesLink');
+    const profileLink = document.getElementById('profileLink');
 
     // Mobile menu elements
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -208,18 +181,16 @@
     const adminLinkMobile = document.getElementById('adminLinkMobile');
     const ordersLinkMobile = document.getElementById('ordersLinkMobile');
     const adminGamesLinkMobile = document.getElementById('adminGamesLinkMobile');
+    const profileLinkMobile = document.getElementById('profileLinkMobile');
+    const cartLinkMobile = document.getElementById('cartLinkMobile');
+    const cartBadgeMobile = document.getElementById('cartBadgeMobile');
+    const mobileUserRow = document.getElementById('mobileUserRow');
     const userEmailMobile = document.getElementById('userEmailMobile');
     const logoutBtnMobile = document.getElementById('logoutBtnMobile');
 
     function openLoginModal(){
-      if (!loginModal) return;
-      loginModal.classList.remove('hidden');
-      const emailInput = loginModal.querySelector('input[name="email"]');
-      setTimeout(() => emailInput?.focus(), 50);
-    }
-
-    function closeLoginModal(){
-      loginModal?.classList.add('hidden');
+      const redirect = encodeURIComponent(location.pathname + location.search);
+      location.href = `/login?redirect=${redirect}`;
     }
 
     function closeMobileMenu(){
@@ -228,12 +199,15 @@
       mobileMenuBtn.setAttribute('aria-expanded', 'false');
     }
 
-    mobileLoginBtn?.addEventListener('click', openLoginModal);
-    loginModalBackdrop?.addEventListener('click', closeLoginModal);
-    loginModalClose?.addEventListener('click', closeLoginModal);
+    function closeUserMenu(){
+      if (!userMenu || !userMenuBtn) return;
+      userMenu.classList.add('hidden');
+      userMenuBtn.setAttribute('aria-expanded', 'false');
+    }
+
     window.addEventListener('keydown', (e)=>{
-      if (e.key === 'Escape' && loginModal && !loginModal.classList.contains('hidden')) closeLoginModal();
       if (e.key === 'Escape') closeMobileMenu();
+      if (e.key === 'Escape') closeUserMenu();
     });
 
     mobileMenuBtn?.addEventListener('click', ()=>{
@@ -241,6 +215,25 @@
       const isHidden = mobileMenu.classList.contains('hidden');
       mobileMenu.classList.toggle('hidden');
       mobileMenuBtn.setAttribute('aria-expanded', String(isHidden));
+    });
+
+    userMenuBtn?.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      if (!userMenu || !userMenuBtn) return;
+      const isHidden = userMenu.classList.contains('hidden');
+      userMenu.classList.toggle('hidden');
+      userMenuBtn.setAttribute('aria-expanded', String(isHidden));
+    });
+
+    document.addEventListener('click', (e)=>{
+      if (!userMenu || !userMenuBtn) return;
+      if (userMenu.classList.contains('hidden')) return;
+      if (userMenu.contains(e.target) || userMenuBtn.contains(e.target)) return;
+      closeUserMenu();
+    });
+
+    userMenu?.addEventListener('click', ()=>{
+      closeUserMenu();
     });
 
     function setTokenCookie(token){
@@ -252,47 +245,108 @@
       document.cookie = 'token=; Path=/; Max-Age=0';
     }
 
+    function getCookieToken(){
+      const match = document.cookie.match(/(?:^|;\s*)token=([^;]+)/);
+      return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function getStoredToken(){
+      const token = localStorage.getItem('token');
+      if (token) return token;
+      const cookieToken = getCookieToken();
+      if (cookieToken) {
+        localStorage.setItem('token', cookieToken);
+        return cookieToken;
+      }
+      return '';
+    }
+
+    async function refreshCartBadge(){
+      const token = getStoredToken();
+      if (!token) {
+        cartBadge?.classList.add('hidden');
+        cartBadgeMobile?.classList.add('hidden');
+        return;
+      }
+      try {
+        const res = await fetch('/api/cart', { headers: { 'Authorization': 'Bearer ' + token } });
+        if (!res.ok) throw new Error('cart');
+        const data = await res.json().catch(()=>({}));
+        const items = Array.isArray(data?.items) ? data.items : [];
+        const count = items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+        if (count > 0) {
+          if (cartBadge) {
+            cartBadge.textContent = String(count);
+            cartBadge.classList.remove('hidden');
+          }
+          if (cartBadgeMobile) {
+            cartBadgeMobile.textContent = String(count);
+            cartBadgeMobile.classList.remove('hidden');
+          }
+        } else {
+          cartBadge?.classList.add('hidden');
+          cartBadgeMobile?.classList.add('hidden');
+        }
+      } catch {
+        cartBadge?.classList.add('hidden');
+        cartBadgeMobile?.classList.add('hidden');
+      }
+    }
+
+    window.refreshCartBadge = refreshCartBadge;
+
     function showLoginUI(){
-      // desktop form visible on md+ only
-      lf?.classList.add('hidden');
-      lf?.classList.add('md:flex');
+      loginPageBtn?.classList.remove('hidden', 'md:hidden');
       // mobile button visible on <md only
       mobileLoginBtn?.classList.remove('hidden');
+      userMenuWrap?.classList.add('hidden');
+      closeUserMenu();
       // mobile menu auth
+      mobileUserRow?.classList.add('hidden');
       userEmailMobile && (userEmailMobile.textContent = '-');
       logoutBtnMobile?.classList.add('hidden');
-      closeLoginModal();
+      profileLink?.classList.add('hidden');
+      profileLinkMobile?.classList.add('hidden');
+      cartLink?.classList.add('hidden');
+      cartLinkMobile?.classList.add('hidden');
+      cartBadge?.classList.add('hidden');
+      cartBadgeMobile?.classList.add('hidden');
     }
 
     function hideLoginUI(){
-      // hide desktop form
-      lf?.classList.add('hidden');
-      lf?.classList.remove('md:flex');
+      loginPageBtn?.classList.add('hidden', 'md:hidden');
       // hide mobile login button
       mobileLoginBtn?.classList.add('hidden');
-      closeLoginModal();
+      userMenuWrap?.classList.remove('hidden');
     }
 
     async function refreshAuthUI(){
-      const token = localStorage.getItem('token');
+      const token = getStoredToken();
       if(!token){
         showLoginUI();
-        userEmailEl?.classList.add('hidden');
         logoutBtn?.classList.add('hidden');
         adminLink?.classList.add('hidden');
         adminGamesLink?.classList.add('hidden');
         ordersLink?.classList.add('hidden');
+        profileLink?.classList.add('hidden');
+        cartLink?.classList.add('hidden');
 
         // mobile menu links
         adminLinkMobile?.classList.add('hidden');
         adminGamesLinkMobile?.classList.add('hidden');
         ordersLinkMobile?.classList.add('hidden');
+        profileLinkMobile?.classList.add('hidden');
+        cartLinkMobile?.classList.add('hidden');
+        mobileUserRow?.classList.add('hidden');
         logoutBtnMobile?.classList.add('hidden');
         userEmailMobile && (userEmailMobile.textContent = '-');
 
         clearTokenCookie();
         return;
       }
+      // hide login CTAs immediately to avoid flicker while verifying
+      hideLoginUI();
+      userEmailEl && (userEmailEl.textContent = '...');
       try {
         const meRes = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer '+token } });
         if(meRes.ok){
@@ -300,15 +354,22 @@
           if (userEmailEl) userEmailEl.textContent = me.email;
           if (userEmailMobile) userEmailMobile.textContent = me.email;
           hideLoginUI();
-          userEmailEl?.classList.remove('hidden');
           logoutBtn?.classList.remove('hidden');
+          profileLink?.classList.remove('hidden');
+          profileLink?.classList.remove('hidden');
+          cartLink?.classList.remove('hidden');
 
           // default: hide transaksi, will be enabled for non-admin
           ordersLink?.classList.add('hidden');
           ordersLinkMobile?.classList.add('hidden');
+          profileLinkMobile?.classList.remove('hidden');
+          cartLinkMobile?.classList.remove('hidden');
+          refreshCartBadge();
 
           // mobile menu links
+          mobileUserRow?.classList.remove('hidden');
           logoutBtnMobile?.classList.remove('hidden');
+          profileLinkMobile?.classList.remove('hidden');
 
           if (me.role === 'admin') {
             // admin links on
@@ -326,22 +387,28 @@
             adminGamesLinkMobile?.classList.add('hidden');
 
             // user can access transaksi
-            ordersLink?.classList.remove('hidden');
-            ordersLinkMobile?.classList.remove('hidden');
+          ordersLink?.classList.remove('hidden');
+          ordersLinkMobile?.classList.remove('hidden');
           }
           setTokenCookie(token);
         } else {
           localStorage.removeItem('token');
           showLoginUI();
-          userEmailEl?.classList.add('hidden');
           logoutBtn?.classList.add('hidden');
           adminLink?.classList.add('hidden');
           adminGamesLink?.classList.add('hidden');
           ordersLink?.classList.add('hidden');
+          profileLink?.classList.add('hidden');
+          cartLink?.classList.add('hidden');
+          cartBadge?.classList.add('hidden');
 
           adminLinkMobile?.classList.add('hidden');
           adminGamesLinkMobile?.classList.add('hidden');
           ordersLinkMobile?.classList.add('hidden');
+          profileLinkMobile?.classList.add('hidden');
+          cartLinkMobile?.classList.add('hidden');
+          cartBadgeMobile?.classList.add('hidden');
+          mobileUserRow?.classList.add('hidden');
           logoutBtnMobile?.classList.add('hidden');
           userEmailMobile && (userEmailMobile.textContent = '-');
 
@@ -350,15 +417,19 @@
       } catch(err){
         localStorage.removeItem('token');
         showLoginUI();
-        userEmailEl?.classList.add('hidden');
         logoutBtn?.classList.add('hidden');
         adminLink?.classList.add('hidden');
         adminGamesLink?.classList.add('hidden');
         ordersLink?.classList.add('hidden');
+        profileLink?.classList.add('hidden');
+        cartLink?.classList.add('hidden');
 
         adminLinkMobile?.classList.add('hidden');
         adminGamesLinkMobile?.classList.add('hidden');
         ordersLinkMobile?.classList.add('hidden');
+        profileLinkMobile?.classList.add('hidden');
+        cartLinkMobile?.classList.add('hidden');
+        mobileUserRow?.classList.add('hidden');
         logoutBtnMobile?.classList.add('hidden');
         userEmailMobile && (userEmailMobile.textContent = '-');
 
@@ -366,54 +437,26 @@
       }
     }
 
-    async function handleLoginSubmit(formEl){
-      const fd = new FormData(formEl);
-      const email = fd.get('email');
-      const password = fd.get('password');
-
-      const res = await fetch('/api/auth/login',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
-      if(data.token){
-        localStorage.setItem('token', data.token);
-        setTokenCookie(data.token);
-        await refreshAuthUI();
-        closeLoginModal();
-
-        // NOTE: tidak auto-redirect admin, supaya admin bisa tetap melihat halaman public (home/games)
-      } else {
-        if (window.showToast) window.showToast(data.message || 'Login gagal', 'error');
-        else alert(data.message || 'Login gagal');
-      }
-    }
-
-    lf?.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      await handleLoginSubmit(lf);
-    });
-
-    mlf?.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      await handleLoginSubmit(mlf);
-    });
+    mobileLoginBtn?.addEventListener('click', openLoginModal);
 
     logoutBtn?.addEventListener('click', ()=>{
       localStorage.removeItem('token');
       clearTokenCookie();
       showLoginUI();
-      userEmailEl?.classList.add('hidden');
       logoutBtn?.classList.add('hidden');
       adminLink?.classList.add('hidden');
       adminGamesLink?.classList.add('hidden');
       ordersLink?.classList.add('hidden');
+      profileLink?.classList.add('hidden');
+      cartLink?.classList.add('hidden');
 
       // mobile
       adminLinkMobile?.classList.add('hidden');
       adminGamesLinkMobile?.classList.add('hidden');
       ordersLinkMobile?.classList.add('hidden');
+      profileLinkMobile?.classList.add('hidden');
+      cartLinkMobile?.classList.add('hidden');
+      mobileUserRow?.classList.add('hidden');
       logoutBtnMobile?.classList.add('hidden');
       userEmailMobile && (userEmailMobile.textContent = '-');
       closeMobileMenu();
@@ -427,15 +470,17 @@
       localStorage.removeItem('token');
       clearTokenCookie();
       showLoginUI();
-      userEmailEl?.classList.add('hidden');
       logoutBtn?.classList.add('hidden');
       adminLink?.classList.add('hidden');
       adminGamesLink?.classList.add('hidden');
       ordersLink?.classList.add('hidden');
+      profileLink?.classList.add('hidden');
+      cartLink?.classList.add('hidden');
 
       adminLinkMobile?.classList.add('hidden');
       adminGamesLinkMobile?.classList.add('hidden');
       ordersLinkMobile?.classList.add('hidden');
+      mobileUserRow?.classList.add('hidden');
       logoutBtnMobile?.classList.add('hidden');
       userEmailMobile && (userEmailMobile.textContent = '-');
       closeMobileMenu();
@@ -445,142 +490,6 @@
     });
 
     refreshAuthUI();
-
-    // Chat widget (all pages, user-only; admin pages hidden)
-    (function(){
-      const widget = document.getElementById('chatWidget');
-      const fab = document.getElementById('chatFab');
-      const panel = document.getElementById('chatPanel');
-      const closeBtn = document.getElementById('chatCloseBtn');
-      const form = document.getElementById('chatForm');
-      const input = document.getElementById('chatInput');
-      const messages = document.getElementById('chatMessages');
-
-      if (!widget || !fab || !panel || !form || !input || !messages || !closeBtn) return;
-
-      // Hide on admin pages
-      if (location.pathname.startsWith('/admin')) return;
-
-      widget.classList.remove('hidden');
-
-      function openChat(){
-        panel.classList.remove('hidden');
-        fab.classList.add('hidden');
-        setTimeout(() => input.focus(), 50);
-        messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
-      }
-      function closeChat(){
-        panel.classList.add('hidden');
-        fab.classList.remove('hidden');
-      }
-
-      function esc(s){
-        return String(s).replace(/[&<>"']/g, (c)=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
-      }
-
-      function addUserBubble(text){
-        const wrap = document.createElement('div');
-        wrap.className = 'flex justify-end';
-        wrap.innerHTML = `
-          <div class="max-w-[280px] rounded-2xl rounded-tr-md bg-indigo-600 text-white px-3 py-2">
-            <p class="text-sm">${esc(text)}</p>
-          </div>
-        `;
-        messages.appendChild(wrap);
-      }
-
-      function addBotBubble(text){
-        const wrap = document.createElement('div');
-        wrap.className = 'flex items-start gap-2';
-        wrap.innerHTML = `
-          <div class="h-8 w-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">EZ</div>
-          <div class="max-w-[260px] rounded-2xl rounded-tl-md border border-gray-200 bg-gray-50 px-3 py-2">
-            <p class="text-sm text-gray-800">${esc(text)}</p>
-          </div>
-        `;
-        messages.appendChild(wrap);
-      }
-
-      function botTyping(){
-        const typing = document.createElement('div');
-        typing.className = 'flex items-start gap-2';
-        typing.innerHTML = `
-          <div class="h-8 w-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-semibold">EZ</div>
-          <div class="max-w-[260px] rounded-2xl rounded-tl-md border border-gray-200 bg-gray-50 px-3 py-2">
-            <p class="text-sm text-gray-500">Mengetik...</p>
-          </div>
-        `;
-        messages.appendChild(typing);
-        messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
-        return typing;
-      }
-
-      function isLoggedIn(){
-        return Boolean(localStorage.getItem('token'));
-      }
-
-      async function sendToAI(message){
-        if (!isLoggedIn()) {
-          return 'Untuk menggunakan fitur AI Chat, kamu perlu login dulu. Silakan login, lalu coba lagi ya.';
-        }
-
-        const res = await fetch('/api/ai/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
-        });
-
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          return data?.message || 'Maaf, fitur chat belum bisa dipakai sekarang.';
-        }
-        return data?.reply || 'Maaf, aku belum punya jawaban untuk itu.';
-      }
-
-      fab.addEventListener('click', openChat);
-      closeBtn.addEventListener('click', closeChat);
-
-      document.querySelectorAll('.chatQuick').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const q = btn.getAttribute('data-q') || btn.textContent || '';
-          if (!q) return;
-          openChat();
-          addUserBubble(q);
-          const typing = botTyping();
-          try {
-            const reply = await sendToAI(q);
-            typing.remove();
-            addBotBubble(reply);
-          } catch {
-            typing.remove();
-            addBotBubble('Maaf, terjadi kendala saat menghubungi server chat.');
-          }
-          messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
-        });
-      });
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const text = String(input.value || '').trim();
-        if (!text) return;
-        addUserBubble(text);
-        input.value = '';
-        const typing = botTyping();
-        try {
-          const reply = await sendToAI(text);
-          typing.remove();
-          addBotBubble(reply);
-        } catch {
-          typing.remove();
-          addBotBubble('Maaf, terjadi kendala saat menghubungi server chat.');
-        }
-        messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
-      });
-
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !panel.classList.contains('hidden')) closeChat();
-      });
-    })();
   </script>
 </body>
 </html>

@@ -1,0 +1,69 @@
+<section class="min-h-[70vh] flex items-center justify-center">
+  <div class="w-full max-w-md rounded-2xl border border-rose-100 bg-white shadow-xl overflow-hidden">
+    <div class="px-5 py-4 border-b border-rose-100 bg-rose-50">
+      <p class="text-lg font-semibold text-gray-900">Masuk ke EzBeauty</p>
+      <p class="text-xs text-gray-500 mt-1">Login untuk melanjutkan checkout dan melihat transaksi.</p>
+    </div>
+
+    <form id="loginPageForm" class="p-5 space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
+        <input name="email" type="email" placeholder="email@domain.com" class="w-full bg-white text-gray-900 placeholder:text-gray-400 border border-rose-100 px-3 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/40" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-700 mb-1">Password</label>
+        <input name="password" type="password" placeholder="password" class="w-full bg-white text-gray-900 placeholder:text-gray-400 border border-rose-100 px-3 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/40" />
+      </div>
+      <button class="w-full bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 rounded-xl font-semibold">Login</button>
+    </form>
+
+    <div class="px-5 pb-5">
+      <a
+        id="googleLoginBtn"
+        href="/api/auth/google"
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50/60 hover:bg-rose-100/70 px-4 py-2.5 text-sm font-semibold text-rose-700">
+        <span class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-rose-200 bg-white text-rose-700 font-semibold">G</span>
+        Login dengan Google
+      </a>
+      <p class="mt-3 text-xs text-gray-500 text-center">
+        Dengan login, kamu setuju dengan kebijakan kami.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function(){
+    const form = document.getElementById('loginPageForm');
+    const googleBtn = document.getElementById('googleLoginBtn');
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect') || '<%= redirect || "/" %>';
+    const safeRedirect = redirect.startsWith('/') ? redirect : '/';
+
+    if (googleBtn) {
+      googleBtn.setAttribute('href', `/api/auth/google?redirect=${encodeURIComponent(safeRedirect)}`);
+    }
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const email = fd.get('email');
+      const password = fd.get('password');
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        document.cookie = `token=${encodeURIComponent(data.token)}; Path=/; Max-Age=${60*60*24}`;
+        window.location.href = safeRedirect;
+      } else {
+        if (window.showToast) window.showToast(data.message || 'Login gagal', 'error');
+        else alert(data.message || 'Login gagal');
+      }
+    });
+  })();
+</script>

@@ -1,0 +1,215 @@
+<% const hasErrors = errors && Object.keys(errors).length; %>
+<% const returnTarget = returnTo || '/profile'; %>
+<section class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight text-gray-900">Alamat Saya</h1>
+      <p class="text-sm text-gray-600">Kelola alamat dan kontak penerima.</p>
+    </div>
+    <button id="openAddressModal" class="inline-flex items-center justify-center rounded-xl bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 text-sm font-semibold">
+      Tambah Alamat
+    </button>
+  </div>
+
+  <% if (notice) { %>
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <span><%= notice %></span>
+        <% if (returnTo) { %>
+          <a href="<%= returnTo %>" class="text-sm font-semibold text-amber-800 hover:underline">Kembali ke checkout</a>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="rounded-2xl border border-rose-100 bg-white shadow-sm overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-rose-100 bg-rose-50/60">
+      <div>
+        <h2 class="text-sm font-semibold text-gray-900">Alamat Pengiriman</h2>
+        <p class="text-xs text-gray-500">Pilih alamat yang tersimpan untuk pengiriman.</p>
+      </div>
+      <span class="text-xs text-gray-500">Total: <span class="font-semibold text-gray-900"><%= addresses.length %></span></span>
+    </div>
+    <div class="p-5">
+      <div class="grid gap-3 sm:grid-cols-2">
+        <% if (!addresses.length) { %>
+          <div class="rounded-xl border border-rose-100 bg-rose-50/40 p-4 text-sm text-gray-600">
+            Belum ada alamat. Klik <span class="font-semibold text-gray-900">Tambah Alamat</span> untuk menyimpan alamat baru.
+          </div>
+        <% } %>
+        <% addresses.forEach(a => { %>
+          <div class="rounded-xl border border-rose-100 bg-rose-50/40 p-4 text-sm text-gray-800">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <p class="font-semibold text-gray-900"><%= a.label || 'Alamat' %></p>
+                  <% if (a.isDefault) { %>
+                    <span class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">Utama</span>
+                  <% } %>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Penerima: <span class="font-semibold text-gray-800"><%= a.recipientName %></span></p>
+                <% if (a.contactNumber) { %>
+                  <p class="mt-1 text-xs text-gray-500">Kontak: <span class="font-semibold text-gray-800"><%= a.contactNumber %></span></p>
+                <% } %>
+                <p class="mt-1 text-gray-700 whitespace-pre-line"><%= a.address %></p>
+                <p class="mt-1 text-xs text-gray-500"><%= [a.city, a.postalCode].filter(Boolean).join(' • ') %></p>
+                <% if (a.notes) { %>
+                  <p class="mt-1 text-xs text-gray-500"><%= a.notes %></p>
+                <% } %>
+              </div>
+              <div class="flex flex-col items-end gap-2">
+                <button
+                  type="button"
+                  class="editAddressBtn text-xs font-semibold text-gray-700 hover:underline"
+                  data-id="<%= a.id %>"
+                  data-recipient="<%= a.recipientName %>"
+                  data-contact="<%= a.contactNumber || '' %>"
+                  data-label="<%= a.label || '' %>"
+                  data-city="<%= a.city || '' %>"
+                  data-postal="<%= a.postalCode || '' %>"
+                  data-notes="<%= a.notes || '' %>"
+                  data-address="<%= a.address %>"
+                >
+                  Ubah
+                </button>
+                <% if (!a.isDefault) { %>
+                  <form method="POST" action="/profile/addresses/<%= a.id %>/default">
+                    <input type="hidden" name="returnTo" value="<%= returnTarget %>" />
+                    <button class="text-xs font-semibold text-gray-700 hover:underline">Jadikan utama</button>
+                  </form>
+                <% } %>
+                <form method="POST" action="/profile/addresses/<%= a.id %>/delete">
+                  <button class="text-xs font-semibold text-rose-700 hover:underline">Hapus</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="addressModal" class="fixed inset-0 z-[9998] hidden" role="dialog" aria-modal="true" aria-labelledby="addressModalTitle">
+  <div id="addressModalBackdrop" class="absolute inset-0 bg-black/40"></div>
+  <div class="absolute inset-x-0 top-10 sm:top-16 mx-auto w-[94%] max-w-2xl rounded-2xl border border-rose-100 bg-white shadow-xl overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-rose-100 bg-rose-50">
+      <div class="min-w-0">
+        <p id="addressModalTitle" class="text-sm font-semibold text-gray-900"><%= form?.addressId ? 'Ubah Alamat' : 'Tambah Alamat' %></p>
+        <p class="text-xs text-gray-500">Isi detail penerima dan alamat pengiriman.</p>
+      </div>
+      <button type="button" id="addressModalClose" class="h-9 w-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">✕</button>
+    </div>
+    <form
+      id="addressForm"
+      method="POST"
+      action="<%= form?.addressId ? `/profile/addresses/${form.addressId}/update` : '/profile/addresses' %>"
+      class="p-4 grid gap-3 md:grid-cols-2"
+    >
+      <input type="hidden" name="returnTo" value="<%= returnTarget %>" />
+      <div>
+        <input name="recipientName" value="<%= form?.addressRecipientName || '' %>" placeholder="Nama Penerima" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-300" />
+        <% if (errors?.recipientName) { %>
+          <p class="mt-1 text-xs text-rose-700"><%= errors.recipientName %></p>
+        <% } %>
+      </div>
+      <input name="label" value="<%= form?.addressLabel || '' %>" placeholder="Label (Rumah/Kantor)" class="rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-300" />
+      <div>
+        <input name="contactNumber" value="<%= form?.addressContactNumber || '' %>" placeholder="No. WhatsApp/Telepon" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-300" />
+        <% if (errors?.contactNumber) { %>
+          <p class="mt-1 text-xs text-rose-700"><%= errors.contactNumber %></p>
+        <% } %>
+      </div>
+      <input name="city" value="<%= form?.addressCity || '' %>" placeholder="Kota" class="rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-300" />
+      <input name="postalCode" value="<%= form?.addressPostalCode || '' %>" placeholder="Kode Pos" class="rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-300" />
+      <input name="notes" value="<%= form?.addressNotes || '' %>" placeholder="Catatan (opsional)" class="rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-300" />
+      <div class="md:col-span-2">
+        <textarea name="address" rows="3" placeholder="Alamat lengkap" class="w-full rounded-xl border border-rose-100 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-300"><%= form?.addressText || '' %></textarea>
+        <% if (errors?.address) { %>
+          <p class="mt-1 text-xs text-rose-700"><%= errors.address %></p>
+        <% } %>
+      </div>
+      <div class="md:col-span-2">
+        <button id="addressSubmitBtn" class="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700">
+          <%= form?.addressId ? 'Simpan Perubahan' : 'Simpan Alamat' %>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const modal = document.getElementById('addressModal');
+    const openBtn = document.getElementById('openAddressModal');
+    const closeBtn = document.getElementById('addressModalClose');
+    const backdrop = document.getElementById('addressModalBackdrop');
+    const formEl = document.getElementById('addressForm');
+    const submitBtn = document.getElementById('addressSubmitBtn');
+    const titleEl = document.getElementById('addressModalTitle');
+    const recipientInput = formEl?.querySelector('input[name="recipientName"]');
+    const labelInput = formEl?.querySelector('input[name="label"]');
+    const contactInput = formEl?.querySelector('input[name="contactNumber"]');
+    const cityInput = formEl?.querySelector('input[name="city"]');
+    const postalInput = formEl?.querySelector('input[name="postalCode"]');
+    const notesInput = formEl?.querySelector('input[name="notes"]');
+    const addressInput = formEl?.querySelector('textarea[name="address"]');
+    const hasErrors = <%= hasErrors ? 'true' : 'false' %>;
+
+    function openModal(){
+      modal?.classList.remove('hidden');
+    }
+    function closeModal(){
+      modal?.classList.add('hidden');
+    }
+
+    function setFormMode(mode, data = {}){
+      if (!formEl) return;
+      if (mode === 'edit') {
+        const id = data.id;
+        formEl.setAttribute('action', `/profile/addresses/${id}/update`);
+        if (titleEl) titleEl.textContent = 'Ubah Alamat';
+        if (submitBtn) submitBtn.textContent = 'Simpan Perubahan';
+      } else {
+        formEl.setAttribute('action', '/profile/addresses');
+        if (titleEl) titleEl.textContent = 'Tambah Alamat';
+        if (submitBtn) submitBtn.textContent = 'Simpan Alamat';
+      }
+      if (recipientInput) recipientInput.value = data.recipientName || '';
+      if (labelInput) labelInput.value = data.label || '';
+      if (contactInput) contactInput.value = data.contactNumber || '';
+      if (cityInput) cityInput.value = data.city || '';
+      if (postalInput) postalInput.value = data.postalCode || '';
+      if (notesInput) notesInput.value = data.notes || '';
+      if (addressInput) addressInput.value = data.address || '';
+    }
+
+    openBtn?.addEventListener('click', ()=>{
+      setFormMode('add');
+      openModal();
+    });
+    closeBtn?.addEventListener('click', closeModal);
+    backdrop?.addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape') closeModal();
+    });
+
+    document.querySelectorAll('.editAddressBtn').forEach((btn)=>{
+      btn.addEventListener('click', ()=>{
+        setFormMode('edit', {
+          id: btn.getAttribute('data-id'),
+          recipientName: btn.getAttribute('data-recipient'),
+          contactNumber: btn.getAttribute('data-contact'),
+          label: btn.getAttribute('data-label'),
+          city: btn.getAttribute('data-city'),
+          postalCode: btn.getAttribute('data-postal'),
+          notes: btn.getAttribute('data-notes'),
+          address: btn.getAttribute('data-address'),
+        });
+        openModal();
+      });
+    });
+
+    if (hasErrors) openModal();
+  })();
+</script>

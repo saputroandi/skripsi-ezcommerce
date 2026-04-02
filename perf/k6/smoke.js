@@ -17,12 +17,12 @@ export default function () {
   const home = http.get(`${BASE_URL}/`);
   check(home, { 'GET / status 200': (r) => r.status === 200 });
 
-  const gamesPage = http.get(`${BASE_URL}/games`);
-  check(gamesPage, { 'GET /games status 200': (r) => r.status === 200 });
+  const productsPage = http.get(`${BASE_URL}/products`);
+  check(productsPage, { 'GET /products status 200': (r) => r.status === 200 });
 
   // Public API list
-  const gamesApi = http.get(`${BASE_URL}/api/games`);
-  check(gamesApi, { 'GET /api/games status 200': (r) => r.status === 200 });
+  const productsApi = http.get(`${BASE_URL}/api/products`);
+  check(productsApi, { 'GET /api/products status 200': (r) => r.status === 200 });
 
   sleep(1);
 }

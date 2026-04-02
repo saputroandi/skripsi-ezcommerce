@@ -4,10 +4,10 @@ const auth = require('../middleware/auth');
 
 /**
  * @openapi
- * /api/vouchers:
+ * /api/variants:
  *   get:
- *     tags: [Vouchers]
- *     responses: { 200: { description: 'List vouchers' } }
+ *     tags: [Variants]
+ *     responses: { 200: { description: 'List variants' } }
  */
 router.get('/', ctrl.list);
 router.get('/:id', ctrl.get);
